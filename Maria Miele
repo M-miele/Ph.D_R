@@ -1,0 +1,528 @@
+###auto Maria Miele
+###Conferencia dos dados Antropometricos do banco original
+#####criação de classificação de Atalah
+
+
+library(tidyverse)
+library(ggplot2)
+library(xlsx)
+library(gapminder)
+library(tibble)
+library(dplyr)
+library(magrittr)
+
+#o ggplot tem pacotes de extensão para ele. Uma recomendada é ggtheme
+#install.packages("ggthemes") usando a ferrament packages 
+
+install.packages("ggthemes") 
+library(ggthemes)
+
+
+#Bancos Antro, GAW e Atalah
+
+
+###Acrescentar Idade gestacional ao Banco original
+##fazer o join e recontar
+###rever dados DMG com meu N
+##fazer o join e recontar
+
+
+Antro2 <- Antro %>% left_join(GAW, by = "ID")
+
+#exportar para o dropbox
+
+write.xlsx(Antro2,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antro2.xlsx")
+
+
+#Comecando o trabalho apenas com Antro2
+#selecionar colunas para regioes
+
+summary(Antro2$BMI_1)
+
+table(Antro2$Region)
+
+barplot(table(Antro2$Region))
+
+
+
+#Filtrar todos menores com 19 semanas 
+
+BMI17 <- filter(Antro2, GA1 == 17) 
+BMI18 <- filter(Antro2, GA1 == 18) 
+BMI19 <- filter(Antro2, GA1 == 19) 
+BMI20 <- filter(Antro2, GA1 == 20)
+BMI21 <- filter(Antro2, GA1 == 21) 
+BMI22 <- filter(Antro2, GA1 == 22) 
+
+BMI26 <- filter(Antro2, GA2 == 26)
+BMI27 <- filter(Antro2, GA2 == 27)
+BMI28 <- filter(Antro2, GA2 == 28) 
+BMI29 <- filter(Antro2, GA2 == 29) 
+
+BMI37 <- select(Antro2, GA3 == 37)
+BMI38 <- select(Antro2, GA3 == 38) 
+BMI39 <- select(Antro2, GA3 == 39)
+
+dim(Antro2)
+
+dim(BMI17)
+dim(BMI18)
+dim(BMI19)
+dim(BMI20)
+dim(BMI21)
+dim(BMI22)
+dim(BMI26)
+dim(BMI27)
+dim(BMI28) 
+dim(BMI29) 
+dim(BMI37) 
+dim(BMI38) 
+dim(BMI39) 
+
+sum(1,2,654,439,69,1)
+sum(1,528,364,43)
+sum(569,185,18)
+
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+
+GA17n<- mutate(BMI17, Class = if_else(BMI_1>=21.2 & BMI_1<=26, "Adequate","No_Adequate"))
+GA18n<- mutate(BMI18, Class = if_else(BMI_1>=21.3 & BMI_1<=26.1, "Adequate","No_Adequate"))
+GA19n<- mutate(BMI19, Class = if_else(BMI_1>=21.5 & BMI_1<=26.2, "Adequate","No_Adequate")) 
+GA19uw<- mutate(BMI19, Class = if_else(BMI_1<=21.4, "Underweight","No_UW")) %>% view
+GA19ow<- mutate(BMI19, Class = if_else(BMI_1>=26.3 & BMI_1 <=30.9, "Overweight","No_OW")) 
+GA19o<- mutate(BMI19, Class = if_else(BMI_1>=31, "Obese", "No_Obese")) 
+
+##Filtar apenas a variável de interesse
+
+GAa17 <- filter(GA17n, Class == "Adequate")
+GAa18 <- filter(GA18n, Class == "Adequate")
+GAa19 <- filter(GA19n, Class == "Adequate")
+GAu19 <- filter(GA19uw, Class == "Underweight") 
+GAow19 <- filter(GA19ow, Class == "Overweight") 
+GAo19 <- filter(GA19o, Class == "Obese")
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA19s<-bind_rows(GAa19,GAu19,GAow19,GAo19,GAa17,GAa18) 
+
+
+
+#Filtrar todos menores com 20 semanas 
+
+BMI20 <- filter(Antro2, GA1 == 20) 
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+GA20n<- mutate(BMI20, Class = if_else(BMI_1>=21.6 & BMI_1<=26.3, "Adequate","No_Adequate")) 
+GA20uw<- mutate(BMI20, Class = if_else(BMI_1<=21.5, "Underweight","No_UW")) 
+GA20ow<- mutate(BMI20, Class = if_else(BMI_1>=26.4 & BMI_1 <=31, "Overweight","No_OW")) 
+GA20o<- mutate(BMI20, Class = if_else(BMI_1>31, "Obese", "No_Obese")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa20 <- filter(GA20n, Class == "Adequate")
+GAu20 <- filter(GA20uw, Class == "Underweight") 
+GAow20 <- filter(GA20ow, Class == "Overweight") 
+GAo20 <- filter(GA20o, Class == "Obese")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA20<-bind_rows(GAa20,GAu20,GAow20,GAo20) 
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA21uw<- mutate(BMI21, Class = if_else(BMI_1<=21.7, "Underweight","No_UW")) 
+GA21n<- mutate(BMI21, Class = if_else(BMI_1>=21.8 & BMI_1<=26.4, "Adequate","No_Adequate")) 
+GA21ow<- mutate(BMI21, Class = if_else(BMI_1>=26.5 & BMI_1 <=31.1, "Overweight","No_OW"))
+GA21o<- mutate(BMI21, Class = if_else(BMI_1>31.1, "Obese", "No_Obese")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa21 <- filter(GA21n, Class == "Adequate")
+GAu21 <- filter(GA21uw, Class == "Underweight") 
+GAow21 <- filter(GA21ow, Class == "Overweight") 
+GAo21 <- filter(GA21o, Class == "Obese")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA21<-bind_rows(GAa21,GAu21,GAow21,GAo21) 
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA22n<- mutate(BMI22, Class = if_else(BMI_1>=21.9 & BMI_1<=26.6, "Adequate","No_Adequate")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa22 <- filter(GA22n, Class == "Adequate")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA21s<-bind_rows(GAa22,GA21) 
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA26ow<- mutate(BMI26, Class = if_else(BMI_2>=27.3 & BMI_2<=31.7, "Overweight","No_OW")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAow26 <- filter(GA26ow, Class == "Overweight")
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA27uw<- mutate(BMI27, Class = if_else(BMI_2<=22.7, "Underweight","No_UW")) 
+GA27n<- mutate(BMI27, Class = if_else(BMI_2>=22.8 & BMI_2<=27.3, "Adequate","No_Adequate")) 
+GA27ow<- mutate(BMI27, Class = if_else(BMI_2>=24.4 & BMI_2 <=31.8, "Overweight","No_OW"))
+GA27o<- mutate(BMI27, Class = if_else(BMI_2>31.8, "Obese", "No_Obese")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa27 <- filter(GA27n, Class == "Adequate")
+GAu27 <- filter(GA27uw, Class == "Underweight") 
+GAow27 <- filter(GA27ow, Class == "Overweight") 
+GAo27 <- filter(GA27o, Class == "Obese")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA27s<-bind_rows(GAa27,GAu27,GAow27,GAo27,GAow26) 
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA28uw<- mutate(BMI28, Class = if_else(BMI_2<=22.9, "Underweight","No_UW")) 
+GA28n<- mutate(BMI28, Class = if_else(BMI_2>=23 & BMI_2<=27.5, "Adequate","No_Adequate")) 
+GA28ow<- mutate(BMI28, Class = if_else(BMI_2>=27.6 & BMI_2 <=31.9, "Overweight","No_OW"))
+GA28o<- mutate(BMI28, Class = if_else(BMI_2>31.9, "Obese", "No_Obese")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa28 <- filter(GA28n, Class == "Adequate")
+GAu28 <- filter(GA28uw, Class == "Underweight") 
+GAow28 <- filter(GA28ow, Class == "Overweight") 
+GAo28 <- filter(GA28o, Class == "Obese")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA28<-bind_rows(GAa28,GAu28,GAow28,GAo28) 
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA29uw<- mutate(BMI29, Class = if_else(BMI_2<=23.1, "Underweight","No_UW")) 
+GA29n<- mutate(BMI29, Class = if_else(BMI_2>=23.2 & BMI_2<=27.6, "Adequate","No_Adequate")) 
+GA29ow<- mutate(BMI29, Class = if_else(BMI_2>=27.7 & BMI_2 <=32, "Overweight","No_OW"))
+GA29o<- mutate(BMI29, Class = if_else(BMI_2>32, "Obese", "No_Obese")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa29 <- filter(GA29n, Class == "Adequate")
+GAu29 <- filter(GA29uw, Class == "Underweight") 
+GAow29 <- filter(GA29ow, Class == "Overweight") 
+GAo29 <- filter(GA29o, Class == "Obese")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA29<-bind_rows(GAa29,GAu29,GAow29,GAo29) 
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA37uw<- mutate(BMI37, Class = if_else(BMI_3<=24.4, "Underweight","No_UW")) 
+GA37n<- mutate(BMI37, Class = if_else(BMI_3>=24.5 & BMI_3<=28.7, "Adequate","No_Adequate")) 
+GA37ow<- mutate(BMI37, Class = if_else(BMI_3>=28.8 & BMI_3 <=32.8, "Overweight","No_OW"))
+GA37o<- mutate(BMI37, Class = if_else(BMI_3>32.8, "Obese", "No_Obese")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa37 <- filter(GA37n, Class == "Adequate")
+GAu37 <- filter(GA37uw, Class == "Underweight") 
+GAow37 <- filter(GA37ow, Class == "Overweight") 
+GAo37 <- filter(GA37o, Class == "Obese")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA37<-bind_rows(GAa37,GAu37,GAow37,GAo37) 
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA38uw<- mutate(BMI38, Class = if_else(BMI_3<=24.5, "Underweight","No_UW")) 
+GA38n<- mutate(BMI38, Class = if_else(BMI_3>=24.6 & BMI_3<=28.8, "Adequate","No_Adequate")) 
+GA38ow<- mutate(BMI38, Class = if_else(BMI_3>=28.9 & BMI_3 <=32.9, "Overweight","No_OW"))
+GA38o<- mutate(BMI38, Class = if_else(BMI_3>32.9, "Obese", "No_Obese")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa38 <- filter(GA38n, Class == "Adequate")
+GAu38 <- filter(GA38uw, Class == "Underweight") 
+GAow38 <- filter(GA38ow, Class == "Overweight") 
+GAo38 <- filter(GA38o, Class == "Obese")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA38<-bind_rows(GAa38,GAu38,GAow38,GAo38)
+
+
+#combinando com argumento if_else (se não for >=20 = sobrepeso, se não for vai chamar no_sobrepeso)
+#cria objeto novo "Class" com a classificação do Atalah 
+
+
+GA39uw<- mutate(BMI39, Class = if_else(BMI_3<=24.7, "Underweight","No_UW")) 
+GA39n<- mutate(BMI39, Class = if_else(BMI_3>=24.8 & BMI_3<=28.9, "Adequate","No_Adequate")) 
+GA39ow<- mutate(BMI39, Class = if_else(BMI_3>=29.0 & BMI_3 <=33.0, "Overweight","No_OW"))
+GA39o<- mutate(BMI39, Class = if_else(BMI_3>33.0, "Obese", "No_Obese")) 
+
+
+##Filtar apenas a variável de interesse
+
+GAa39 <- filter(GA39n, Class == "Adequate")
+GAu39 <- filter(GA39uw, Class == "Underweight") 
+GAow39 <- filter(GA39ow, Class == "Overweight") 
+GAo39 <- filter(GA39o, Class == "Obese")
+
+
+#Unir todos os individuos em um só banco 
+#bind_cols(a,b) = coloca um DF ao lado do outro 
+
+GA39<-bind_rows(GAa39,GAu39,GAow39,GAo39) 
+
+
+#exportar para o dropbox
+
+write.xlsx(GA19s,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA19s.xlsx")
+write.xlsx(GA20,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA20.xlsx")
+write.xlsx(GA21s,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA21.xlsx")
+
+write.xlsx(GA27s,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA27s.xlsx")
+write.xlsx(GA28,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA28.xlsx")
+write.xlsx(GA29,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA29.xlsx")
+
+write.xlsx(GA37,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA37.xlsx")
+write.xlsx(GA38,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA38.xlsx")
+write.xlsx(GA39,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/GA39.xlsx")
+
+###minerar os dados conforme trimestre
+# primeiro trimestre
+
+Tri_19 <- GA19s [ ,-(4:5)]
+Tri_19 <- Tri_19 [ ,-(5:18)]
+Tri_19 <- Tri_19 [ ,-(6:21)]
+
+Tri_20 <- GA20 [ ,-(4:5)]
+Tri_20 <- Tri_20 [ ,-(5:18)]
+Tri_20 <- Tri_20 [ ,-(6:21)]
+
+Tri_21 <- GA21s [ ,-(4:5)]
+Tri_21 <- Tri_21 [ ,-(5:18)]
+Tri_21 <- Tri_21 [ ,-(6:21)]
+
+# segundo trimestre
+
+Tri_27 <- GA27s [ ,-3]
+Tri_27 <- Tri_27 [ ,-(4:5)]
+Tri_27 <- Tri_27[ ,-(5:18)]
+Tri_27 <- Tri_27 [ ,-(6:20)]
+
+Tri_28 <- GA28 [ ,-3]
+Tri_28 <- Tri_28 [ ,-(4:5)]
+Tri_28 <- Tri_28[ ,-(5:18)]
+Tri_28 <- Tri_28 [ ,-(6:20)]
+
+Tri_29 <- GA29 [ ,-3]
+Tri_29 <- Tri_29 [ ,-(4:5)]
+Tri_29 <- Tri_29[ ,-(5:18)]
+Tri_29 <- Tri_29 [ ,-(6:20)]
+
+
+# terceiro trimestre
+
+Tri_37 <- GA37 [ ,-(3:4)]
+Tri_37 <- Tri_37 [ ,-(4:5)]
+Tri_37 <- Tri_37[ ,-(5:18)]
+Tri_37 <- Tri_37 [ ,-(6:19)]
+
+Tri_38 <- GA38 [ ,-(3:4)]
+Tri_38 <- Tri_38 [ ,-(4:5)]
+Tri_38 <- Tri_38[ ,-(5:18)]
+Tri_38 <- Tri_38 [ ,-(6:19)]
+
+Tri_39 <- GA39 [ ,-(3:4)]
+Tri_39 <- Tri_39 [ ,-(4:5)]
+Tri_39 <- Tri_39[ ,-(5:18)]
+Tri_39 <- Tri_39 [ ,-(6:19)]
+
+###unir em um só banco
+
+tri_1<-bind_rows(Tri_19,Tri_20,Tri_21) 
+tri_2<-bind_rows(Tri_27,Tri_28,Tri_29) 
+tri_3<-bind_rows(Tri_37,Tri_38,Tri_39) 
+
+
+
+#exportar para o dropbox
+
+write.xlsx(tri_1,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/tri_1.xlsx")
+write.xlsx(tri_2,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/tri_2.xlsx")
+write.xlsx(tri_3,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/tri_3.xlsx")
+
+
+#MOntar tabela agrupada por centro
+#preparando dados da coluna e soma
+#2 colunas criadas media do imc para cada muac e a contagem por cada um por trimestre
+
+Tab_sp1b <-tri_1 %>% group_by(BMI_1) %>% summarise(media = mean(MUAC_1), contagem =  length(MUAC_1)) 
+Tab_sp2b <-tri_2 %>% group_by(BMI_2) %>% summarise(media = mean(MUAC_2), contagem =  length(MUAC_2)) 
+Tab_sp3b <-tri_3 %>% group_by(BMI_3) %>% summarise(media = mean(MUAC_3), contagem =  length(MUAC_3)) 
+
+###conferir descritivo
+
+summary(Tab_sp1b)
+
+##resolvendo NA
+#filtra so trazendo o que não é NA
+
+
+tri_1na <- filter(tri_1, is.na(MUAC_1) == FALSE & is.na(Sum_SF1) == FALSE & is.na(Class) == FALSE)  
+tri_2na <- filter(tri_2, is.na(MUAC_2) == FALSE & is.na(Sum_SF2) == FALSE & is.na(Class) == FALSE)  
+tri_3na <- filter(tri_3, is.na(MUAC_3) == FALSE & is.na(Sum_SF3) == FALSE & is.na(Class) == FALSE)  
+
+
+#aplica funções nos grupos em colunas (tibble)
+#juntar colunas com separador de parenteses
+#transformar em DF para operar
+##tudo por trimestre
+##trimestre 1
+
+Tab1_6b <- summarise(tri_1, media = mean(BMI_1), despad = sd (BMI_1), N = length(BMI_1))
+Tab1_6b<- paste(Tab1_6b$media, "±", Tab1_6b$despad, "(", Tab1_6b$N, ")") 
+Tab1_6b<-as.data.frame(Tab1_6b)
+
+Tab1_6m <- summarise(tri_1na, media = mean(MUAC_1), despad = sd (MUAC_1), N = length(MUAC_1))
+Tab1_6m <- paste(Tab1_6m$media, "±", Tab1_6m$despad, "(", Tab1_6m$N, ")")
+Tab1_6m<-as.data.frame(Tab1_6m)
+
+Tab1_6sf <- summarise(tri_1na, media = mean(Sum_SF1), despad = sd (Sum_SF1), N = length(Sum_SF1))
+Tab1_6sf <- paste(Tab1_6sf$media, "±", Tab1_6sf$despad, "(", Tab1_6sf$N, ")")
+Tab1_6sf<-as.data.frame(Tab1_6sf)
+
+##trimestre 2
+
+Tab2_6b <- summarise(tri_2, media = mean(BMI_2), despad = sd (BMI_2), N = length(BMI_2))
+Tab2_6b<- paste(Tab2_6b$media, "±", Tab2_6b$despad, "(", Tab2_6b$N, ")") 
+Tab2_6b<-as.data.frame(Tab2_6b)
+
+Tab2_6m <- summarise(tri_2na, media = mean(MUAC_2), despad = sd (MUAC_2), N = length(MUAC_2))
+Tab2_6m <- paste(Tab2_6m$media, "±", Tab2_6m$despad, "(", Tab2_6m$N, ")")
+Tab2_6m<-as.data.frame(Tab2_6m)
+
+Tab2_6sf <- summarise(tri_2na, media = mean(Sum_SF2), despad = sd (Sum_SF2), N = length(Sum_SF2))
+Tab2_6sf <- paste(Tab2_6sf$media, "±", Tab2_6sf$despad, "(", Tab2_6sf$N, ")")
+Tab2_6sf<-as.data.frame(Tab2_6sf)
+
+##trimestre 3
+
+Tab3_6b <- summarise(tri_3, media = mean(BMI_3), despad = sd (BMI_3), N = length(BMI_3))
+Tab3_6b<- paste(Tab3_6b$media, "±", Tab3_6b$despad, "(", Tab3_6b$N, ")") 
+Tab3_6b<-as.data.frame(Tab3_6b)
+
+Tab3_6m <- summarise(tri_3na, media = mean(MUAC_3), despad = sd (MUAC_3), N = length(MUAC_3))
+Tab3_6m <- paste(Tab3_6m$media, "±", Tab3_6m$despad, "(", Tab3_6m$N, ")")
+Tab3_6m<-as.data.frame(Tab3_6m)
+
+Tab3_6sf <- summarise(tri_3na, media = mean(Sum_SF3), despad = sd (Sum_SF3), N = length(Sum_SF3))
+Tab3_6sf <- paste(Tab3_6sf$media, "±", Tab3_6sf$despad, "(", Tab3_6sf$N, ")")
+Tab3_6sf<-as.data.frame(Tab3_6sf)
+
+#depois junta tudo com cbind
+
+tab_1<-cbind(Tab1_6b,Tab1_6m,Tab1_6sf) 
+tab_2<-cbind(Tab2_6b,Tab2_6m,Tab2_6sf) 
+tab_3<-cbind(Tab3_6b,Tab3_6m,Tab3_6sf) 
+
+#inverter as colunas e linhas
+#criar 
+#Fazer uma tabela unica
+
+Tab1_inv <- t(tab_1)
+Tab2_inv <- t(tab_2)
+Tab3_inv <- t(tab_3)
+
+##unir todas
+
+tabelas_unidas<-cbind(Tab1_inv,Tab2_inv,Tab3_inv) 
+
+class(tabelas_unidas)
+
+tabelas_DF <- as.data.frame(tabelas_unidas)
+
+##nomeando as colunas
+
+head(tabelas_unidas)
+names(tabelas_DF)[1]<-("19-22w")
+names(tabelas_DF)[2]<-("27-29w")
+names(tabelas_DF)[3]<- ("37-39w")
+
+
+#rownames_to_column() Move row names into col. a <- rownames_to_column(iris, var = "C") 
+
+tab_linha <- rownames_to_column(tabelas_DF, var = "Measures") 
+
+##criando nomes para as linhas de cada variavel
+
+tab_linha$Measures <- gsub ("Tab1_6b", "BMI", tab_linha$Measures)
+tab_linha$Measures <- gsub ("Tab1_6m", "MUAC", tab_linha$Measures)
+tab_linha$Measures <- gsub ("Tab1_6sf", "Skinfold", tab_linha$Measures)
+
+##exportar a tabela pronta
+
+write.xlsx(tab_linha,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Table1.xlsx")
