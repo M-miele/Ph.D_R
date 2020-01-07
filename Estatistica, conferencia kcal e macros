@@ -1,0 +1,572 @@
+###auto Maria Miele
+###Conferencia dos dados do banco original
+###mesclagem com meu N
+
+
+library(tidyverse)
+library(ggplot2)
+library(xlsx)
+library(gapminder)
+library(tibble)
+library(dplyr)
+library(magrittr)
+
+#o ggplot tem pacotes de extensão para ele. Uma recomendada é ggtheme
+#install.packages("ggthemes") usando a ferrament packages 
+
+install.packages("ggthemes") 
+library(ggthemes)
+
+
+Macros<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Macros/Macro_total.xlsx", "Tab1")
+EER<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/EER_kcals/EERkcal_total.xlsx", "Sheet1")
+
+kcal_BD<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/EER_kcals/EERkcal_total.xlsx", "Sheet1")
+
+dim(EER)
+
+##retirar colunas indesejadas do EER
+
+EER <- EER [ ,-(10:15)]
+
+##retirar colunas indesejadas do kcal
+
+kcal_BD <- kcal_BD [ ,-3]
+kcal_BD <- kcal_BD [ ,-(5:14)]
+kcal_BD <- kcal_BD [ ,-(5:6)]
+
+summary(kcal_BD)
+
+
+##separar por região para avaliar 
+
+kcal_BD$centro <- gsub ("UNICAMP", "SE", kcal_BD$centro)
+kcal_BD$centro <- gsub ("UNESP", "SE", kcal_BD$centro)
+kcal_BD$centro <- gsub ("UFRGS", "SE", kcal_BD$centro)
+
+kcal_BD$centro <- gsub ("MEAC", "NE", kcal_BD$centro)
+kcal_BD$centro <- gsub ("UFPE", "NE", kcal_BD$centro)
+
+kcaln <- filter(kcal_BD, centro == "NE") 
+
+summary(kcaln)
+
+kcals <- filter(kcal_BD, centro == "SE") 
+summary(kcals)
+  
+#fazer o joind entre macros e EER para unificar o arquivo 
+
+Makcal <- left_join(Macros,EER, by = "ID")
+
+dim(Makcal)
+
+###seleciona colunas se macros conforme regiao
+Macros <- Macros[ ,-2]
+
+summarise(Macros)
+ summary(Macros$Calories.kcal.)
+ 
+ #selecionar colunas para calorias
+ 
+ calne <- select(Macros,"Region","Calories.kcal.")
+ 
+ summary(calne$Calories.kcal.)
+ 
+ 
+ table(calne$Region)
+ 
+ barplot(table(calne$Region))
+ 
+ #filtrar "Region"
+ 
+ calNE <- filter(calne,Region == "NE") %>% view
+ calSE <- filter(calne,Region == "SE") %>% view
+ 
+ 
+ summary(calNE$Calories.kcal.)
+ summary(calSE$Calories.kcal.)
+ 
+ sd(calNE$Calories.kcal.)
+ sd(calSE$Calories.kcal.)
+sd(calne$Calories.kcal.)
+
+
+#selecionar colunas para macros por regiao
+
+Macrosn <- select(Macros,"Region","Carbohydrate...","Protein...","Lipids...")
+MacroNE <- filter(Macrosn,Region == "NE") %>% view
+MacroSE <- filter(Macrosn,Region == "SE") %>% view
+
+summary(Macrosn$Carbohydrate...)
+
+sd(Macrosn$Carbohydrate...)
+
+#separando os macros
+
+CarboSN <- select(Macrosn,"Carbohydrate...") 
+ProteSN <- select(Macrosn,"Protein...")
+LipSN <- select(Macrosn,"Lipids...") 
+
+#Filtra ou seleciona de acordo com alguma condição (maior e igual, menor e ...)
+
+choInsu <- filter(CarboSN, Carbohydrate...<45.0) 
+count(choInsu)
+
+choAd <- filter(CarboSN, Carbohydrate...>45:65)    
+
+count(choInsu)
+
+#definendo uma faixa de valores não entra nenhum valor outlier ou NA
+
+filter(problema, between(c,1,5)) #filtra coluna c nos valores de 1 a 5
+filter(problema, between(c,1,5) &between(b,1,6)) # filtrar essas colunas nesses valores
+
+
+#######
+
+
+table(calne$Region)
+
+barplot(table(calne$Region))
+
+#filtrar "Region"
+
+calNE <- filter(calne,Region == "NE") %>% view
+calSE <- filter(calne,Region == "SE") %>% view
+
+
+summary(calNE$Calories.kcal.)
+summary(calSE$Calories.kcal.)
+
+sd(calNE$Calories.kcal.)
+sd(calSE$Calories.kcal.)
+sd(calne$Calories.kcal.)
+######### medida de posição no R 
+### minimo, maximo, mdian, mean
+##identifica
+#quatile identifica qualquer percentual
+#summary, ve todoas as posições
+min(Adeq1$BMI)
+median(Adeq1$BMI)
+
+quantile(MicroBD$B12,c(0.25,0.50,0.75))
+
+summary(MicroBD$B12)
+
+
+######medidas de dispersão
+##amplitude subtrai o maximo do minimo
+
+max(MicroBD$B12)-min(MicroBD$B12)
+
+##desvio padrao dividido pela média traz o coeficiente de variação
+
+sd(MicroBD$B12)/mean(MicroBD$B12)
+
+sd(BBase_final$IdadeMae)/mean(BBase_final$IdadeMae)
+
+
+##table quantitade de frequencia absoluta de variavel nominal
+table(MicroBD$centro)
+
+##conferindo quantidade de brancas e não brancas em contagem e em grafico
+table(Macros$centro)
+
+barplot(table(Macros$centro))
+
+##soma da frequencia e o total peso de cada um percentual, frequencia relativas
+table(Macros$centro)/1145
+
+dim(Macros)
+
+
+### Dataframe e colunas
+#substituir o nome das especies para NE e SE
+MiNS <- MicroBD
+MiNS$centro <- gsub ("UNICAMP", "SE", MiNS$centro)
+MiNS$centro <- gsub ("UNESP", "SE", MiNS$centro)
+MiNS$centro <- gsub ("UFRGS", "SE", MiNS$centro)
+
+MiNS$centro <- gsub ("MEAC", "NE", MiNS$centro)
+MiNS$centro <- gsub ("UFPE", "NE", MiNS$centro)
+
+
+#Filtar cor da pela
+
+Cor_cat2 <- SAMBA_banco_final_26_01_19_testeMAJU %>% select("Etnia_cat2") %>% view
+Cor_cat <- SAMBA_banco_final_26_01_19_testeMAJU %>% select("Etnia_cat") %>% view
+Cor_etnia <- SAMBA_banco_final_26_01_19_testeMAJU %>% select("Etnia") %>% view
+Cor <- SAMBA_banco_final_26_01_19_testeMAJU %>% select("EtniaCordepele") %>% view
+
+#colocar as colanas lado a lado em novo arquivo "cor final"
+
+Cor_final <- cbind(Cor_cat,Cor_cat2,Cor_etnia,Cor)
+
+#exportar para excel
+
+write.xlsx(Cor_final,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Cor_final.xlsx")
+
+#tranformar as variaveis em tibble
+
+Cor_cat2 <- as_tibble(Cor_cat2)
+Cor<- as_tibble(Cor)
+Cor_etnia <- as_tibble(Cor_etnia)
+Cor_cat <- as_tibble(Cor_cat)
+
+##fazer intercessao 
+intersect(Cor_cat,Cor) %>%  view
+
+intersect(Cor_cat2,Cor_etnia) %>% view
+
+##selecionar direto as variaveis de interesse
+
+Cor_unica <- SAMBA_banco_final_26_01_19_testeMAJU %>% select("Etnia","Etnia_cat","Etnia_cat2","EtniaCordepele","ID") %>% view
+
+###minerar Cor unica para conferencia dos dados 
+### 1 enviar esse arquivo com ID para excel
+
+write.xlsx(Cor_unica,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Cor_unicaID.xlsx")
+
+####2 criar segundo arquivo cor unica 1 para mineração
+
+Cor_unica1 <- Cor_unica
+
+###mudar os nomes das linhas para fazer intercessão fanzendo todas branca e não branca
+
+Cor_unica1$EtniaCordepele <- gsub ("100-Branca", "1", Cor_unica1$EtniaCordepele)
+Cor_unica1$EtniaCordepele <- gsub ("101-Parda", "2", Cor_unica1$EtniaCordepele)
+Cor_unica1$EtniaCordepele <- gsub ("102-Preta", "2", Cor_unica1$EtniaCordepele)
+Cor_unica1$EtniaCordepele <- gsub ("103-Amarela", "2", Cor_unica1$EtniaCordepele)
+Cor_unica1$EtniaCordepele <- gsub ("104-Outra", "2", Cor_unica1$EtniaCordepele)
+
+Cor_unica1$Etnia_cat1 <- gsub ("3", "2", Cor_unica1$Etnia_cat1)
+Cor_unica1$Etnia <- gsub ("3", "2", Cor_unica1$Etnia)
+
+### transofrmar em tible
+
+Cor_unica1 <- as_tibble(Cor_unica1)
+
+#buscando informações sobre as variaveis cor
+
+Cor_unica1 %>% count(Cor_unica1$Etnia_cat, Cor_unica1$Etnia_cat2, Cor_unica1$EtniaCordepele, Cor_unica1$Etnia, sort= TRUE) %>% view
+
+Cor_final %>% count(Cor_final$Etnia_cat2,Cor_final$Etnia,Cor_final$EtniaCordepele, Cor_final$Etnia_cat, sort= TRUE) %>% view
+
+###conferencia para DMG
+
+DMG <- SAMBA_banco_final_26_01_19_testeMAJU
+
+DMG %>% count(DMG$Centro, DMG$Caso_DMG, DMG$ID, sort = TRUE) 
+
+##selecionar por centro
+#selecionando as variaveis de interesse
+
+DMG1 <- DMG %>% select(Centro, Caso_DMG, Caso_diabetes_SAMBA, ID, Centro)
+
+###rever dados DMG com meu N
+##fazer o join e recontar
+
+N<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/N.xlsx", "Plan1")
+
+DMG1 <- as.data.frame(DMG1)
+
+
+DMG2 <- N %>% left_join(DMG1, by = "ID")
+DMG2 <- DMG2[ ,-3]
+
+###recontagem com meu N
+###montar tabela com banco DMG1
+###verificar diferenças 
+
+DMG2 %>%  count(DMG2$Caso_DMG, DMG2$centro, sort = TRUE) 
+
+summary(DMG2$Caso_DMG)
+
+table(DMG2$Caso_DMG, DMG2$centro)
+
+barplot(table(DMG2$Caso_DMG))
+
+write.xlsx(DMG2,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/DMG_final.xlsx")
+
+##############repetir a conferencia para prematuro
+###conferencia para PTB
+
+PTB <- SAMBA_banco_final_26_01_19_testeMAJU
+
+PTB %>% count(PTB$Nasc_IGs, PTB$Centro, PTB$ID, sort = TRUE) 
+
+##selecionar por centro
+#selecionando as variaveis de interesse
+
+PTB1 <- PTB %>% select(Centro, Nasc_IGs, ID, Centro)
+
+###condensando centros 
+
+PTB1$Centro <- gsub ("UNICAMP", "SE", PTB1$Centro)
+PTB1$Centro <- gsub ("UNESP", "SE", PTB1$Centro)
+PTB1$Centro <- gsub ("UFRGS", "SE", PTB1$Centro)
+
+PTB1$Centro <- gsub ("MEAC", "NE", PTB1$Centro)
+PTB1$Centro <- gsub ("UFPE", "NE", PTB1$Centro)
+
+###filtrar os nascidos <37 e >==37
+
+PTB38 <- filter(PTB1, Nasc_IGs>=37) %>% view
+PTB37 <- filter(PTB1, Nasc_IGs<37) %>% view
+
+summary(PTB37)
+summary(PTB38)
+
+table(PTB37$Centro, PTB37$Nasc_IGs)
+table(PTB38$Centro, PTB38$Nasc_IGs)
+
+barplot(table(PTB37$Nasc_IGs, PTB37$Centro))
+
+
+###Unir as duas variaveis prematuro e não prematuro
+
+PTBunion <- union(PTB37,PTB38)
+
+###rever dados DMG com meu N
+##fazer o join e recontar
+
+N<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/N.xlsx", "Plan1")
+
+
+PTBunion <- N %>% left_join(PTBunion, by = "ID")
+
+
+###recontagem com meu N
+###montar tabela com banco DMG1
+###verificar diferenças 
+
+PTBunion %>% filter (Nasc_IGs <37) 
+PTBunion %>% count (Nasc_IGs <37, by= "Centro") 
+
+##separar as colunas de acordo com o nascimento
+
+PTBunion <- as.tibble(PTBunion)
+
+#cria objeto novo "combinando" (Posso fazer Atalah aqui)
+
+combinando<- mutate(PTBunion, Nascimento = if_else(Nasc_IGs<37, "prematuro","termo"))
+
+###formar nova coluna para 
+
+summary(PTBunion$Nasc_IGs)
+
+table(PTBunion$Nasc_IGs, PTBunion$Centro)
+
+#Exportar as tabelas 
+write.xlsx(PTBunion,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/PTB_final.xlsx")
+
+write.xlsx(combinando,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/PTBcombinado.xlsx")
+
+
+##############repetir a conferencia para SGA
+
+
+SGA <- SAMBA_banco_final_26_01_19_testeMAJU
+
+SGA %>% count(SGA$Caso_RCIU, SGA$ID, SGA$Centro, sort = TRUE) 
+
+##selecionar por centro
+#selecionando as variaveis de interesse
+
+SGA1 <- SGA %>% select(Centro, Caso_RCIU, ID, Centro)
+
+###condensando centros 
+
+SGA1$Centro <- gsub ("UNICAMP", "SE", SGA1$Centro)
+SGA1$Centro <- gsub ("UNESP", "SE", SGA1$Centro)
+SGA1$Centro <- gsub ("UFRGS", "SE", SGA1$Centro)
+
+SGA1$Centro <- gsub ("MEAC", "NE", SGA1$Centro)
+SGA1$Centro <- gsub ("UFPE", "NE", SGA1$Centro)
+
+###conferir 
+
+summary(SGA1)
+
+table(SGA1$Centro, SGA1$Caso_RCIU)
+
+barplot(table(SGA1$Caso_RCIU, SGA1$Centro))
+
+
+###rever dados DMG com meu N
+##fazer o join e recontar
+
+N<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/N.xlsx", "Plan1")
+
+
+SGA1 <- N %>% left_join(SGA1, by = "ID")
+
+
+###recontagem com meu N
+
+SGA1 %>% filter (Caso_RCIU == "Sim") 
+SGA1 %>% count (Caso_RCIU == "sim", by= "Centro") 
+table(SGA1$Centro, SGA1$Caso_RCIU)
+
+barplot(table(SGA1$Caso_RCIU, SGA1$Centro))
+
+
+
+#Exportar as tabelas 
+write.xlsx(SGA1,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/SGA1_final.xlsx")
+
+
+
+##############repetir a conferencia para Preemclampsia (PE)
+
+
+PE <- SAMBA_banco_final_26_01_19_testeMAJU
+
+PE %>% count(PE$Caso_PE, PE$ID, PE$Centro, sort = TRUE) 
+
+##selecionar por centro
+#selecionando as variaveis de interesse
+
+PE1 <- PE %>% select(Centro, Caso_PE, ID, Centro)
+
+###condensando centros 
+
+PE1$Centro <- gsub ("UNICAMP", "SE", PE1$Centro)
+PE1$Centro <- gsub ("UNESP", "SE", PE1$Centro)
+PE1$Centro <- gsub ("UFRGS", "SE", PE1$Centro)
+
+PE1$Centro <- gsub ("MEAC", "NE", PE1$Centro)
+PE1$Centro <- gsub ("UFPE", "NE", PE1$Centro)
+
+#Mesclar com meu N
+
+PE1 <- N %>% left_join(PE1, by = "ID")
+
+###conferir 
+
+summary(PE1)
+
+table(PE1$Centro, PE1$Caso_PE)
+
+barplot(table(PE1$Caso_PE, PE1$Centro))
+
+#Graficos rapidos, testar dados 
+#Histograma uma dimensão
+qplot(x=Caso_PE,data=BDfinal)
+qplot(x=IdadeMae,data=BDfinal)
+qplot(x=Altura_v1,data = BDfinal)
+qplot(x=Nasc_peso,data=BDfinal)
+
+
+#fica sem limite separando as barras
+qplot(x=Caso_PE,data=BDfinal,geom="histogram")
+
+
+###rever dados DMG com meu N
+##fazer o join e recontar
+
+N<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/N.xlsx", "Plan1")
+
+
+SGA1 <- N %>% left_join(SGA1, by = "ID")
+
+
+###recontagem com meu N
+
+SGA1 %>% filter (Caso_RCIU == "Sim") 
+SGA1 %>% count (Caso_RCIU == "sim", by= "Centro") 
+table(SGA1$Centro, SGA1$Caso_RCIU)
+
+barplot(table(SGA1$Caso_RCIU, SGA1$Centro))
+
+
+
+#Exportar as tabelas 
+write.xlsx(PE1,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Desfecho/PE1_final.xlsx")
+
+
+
+##############repetir a conferencia para Peso da Placenta 
+
+Placenta <- SAMBA_banco_final_26_01_19_testeMAJU
+
+
+##selecionar por centro
+#selecionando as variaveis de interesse
+
+Placenta <- Placenta %>% select(Centro, Parto_plac, ID, Centro)
+
+###condensando centros 
+
+Placenta$Centro <- gsub ("UNICAMP", "SE", Placenta$Centro)
+Placenta$Centro <- gsub ("UNESP", "SE", Placenta$Centro)
+Placenta$Centro <- gsub ("UFRGS", "SE", Placenta$Centro)
+
+Placenta$Centro <- gsub ("MEAC", "NE", Placenta$Centro)
+Placenta$Centro <- gsub ("UFPE", "NE", Placenta$Centro)
+
+#Mesclar com meu N
+
+Placenta <- N %>% left_join(Placenta, by = "ID")
+
+###conferir 
+
+summary(Placenta)
+
+table(Placenta$Centro, Placenta$Parto_plac)
+
+barplot(table(Placenta$Parto_plac, Placenta$Centro))
+
+
+###rever dados DMG com meu N
+##fazer o join e recontar
+
+N<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/N.xlsx", "Plan1")
+
+
+Placenta <- N %>% left_join(Placenta, by = "ID")
+
+
+###recontagem com meu N
+
+summarise(Placenta)
+summary(Placenta)
+
+#filtrar "Region"
+
+PlacentaNE <- filter(Placenta,Centro == "NE") %>% view
+PlacentaSE <- filter(Placenta,Centro == "SE") %>% view
+
+
+summary(PlacentaNE$Parto_plac)
+summary(PlacentaSE$Parto_plac)
+
+sd(PlacentaNE$Parto_plac)
+sd(PlacentaSE$Parto_plac)
+
+
+#Exportar as tabelas 
+write.xlsx(Placenta,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Desfecho/Placenta_final.xlsx")
+
+###############conferir desfechos
+
+#preparando dados da coluna e desvio padrão 
+#2 colunas criadas
+TabelaRN <- BDfinal %>% group_by(centro) %>% summarise(media = mean(Altura_m), desvio = sd (Altura_m)) 
+
+##########roda e já forma uma tabela
+
+view(TabelaRN)
+
+#cria um dataframe com essa formula, assim toda a vez a formula está pronta e não precisa repetir
+
+gr <- ggplot(gr)
+
+
+
+######medidas de dispersão
+##amplitude subtrai o maximo do minimo
+
+
+max(BDfinal$Caso_PE
+  )-min(BDfinal$Caso_PE)
