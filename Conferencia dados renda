@@ -1,0 +1,95 @@
+###Autor Maria Miele
+###O que esse scrip faz: Confere os dados sociais de renda do banco original
+
+library(tidyverse)
+library(ggplot2)
+library(xlsx)
+library(gapminder)
+library(tibble)
+library(dplyr)
+library(magrittr)
+
+### lendo Banco original
+
+view(SAMBA_banco_final_26_01_19_testeMAJU)
+
+###Selecionando e contando a renda
+
+renda <-  SAMBA_banco_final_26_01_19_testeMAJU
+
+#selecionando as variaveis de interesse
+
+renda <- renda %>% select(ID,Centro,Renda, Renda_cat, Renda_cat3, Renda_cat2)
+
+
+###colocar em ordem crescente
+#organiza as linhas por variaveis
+
+renda <-arrange(renda, ID)
+
+
+###fazer o joing  com o N que tem R24hs da minha analise
+
+view(N)
+
+renda_banco <- N %>% left_join(renda, by = "ID")
+
+length(renda_banco)
+dim(renda_banco)
+
+###deletar colunas indesejaveis
+
+renda_cat <- renda_banco [ , -2] 
+renda_cat <- renda_cat [ , -3] 
+renda_cat <- renda_cat [ , -(4:5)] 
+renda_cat <- renda_cat [ , -(5:8)] 
+
+
+###calcular N e percentual de cada categoria e cada grupo
+##agrupar por categoria
+
+renda_SE <- filter(renda_cat,centro == "SE")
+renda_NE <- filter(renda_cat,centro == "NE")
+
+##aplica função para calculo
+
+dim(renda_NE)
+dim(renda_SE)
+
+
+#exportar para o dropbox
+
+write.xlsx(renda_NE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/renda_NE.xlsx")
+write.xlsx(renda_SE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/renda_SE.xlsx")
+
+
+
+
+#filtrar por categoria de renda
+##NE
+
+renda_1ne <- filter(renda_NE, Renda_cat2 == 1)
+dim(renda_1ne)
+
+renda_2ne <- filter(renda_NE, Renda_cat2 == 2)
+dim(renda_2ne)
+
+renda_3ne <- filter(renda_NE, Renda_cat2 == 3)
+dim(renda_3ne)
+
+renda_4ne <- filter(renda_NE, Renda_cat2 == 4)
+dim(renda_4ne)
+
+##SE
+
+renda_1se <- filter(renda_SE, Renda_cat2 == 1)
+dim(renda_1se)
+
+renda_2se <- filter(renda_SE, Renda_cat2 == 2)
+dim(renda_2se)
+
+renda_3se <- filter(renda_SE, Renda_cat2 == 3)
+dim(renda_3se)
+
+renda_4se <- filter(renda_SE, Renda_cat2 == 4)
+dim(renda_4se)
