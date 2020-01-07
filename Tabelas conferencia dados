@@ -1,0 +1,113 @@
+#Maria Miele
+###O que esse Script faz== monta tabelas e confere os dados em graficos rapidos
+
+
+#MOntar tabela agrupada por centro
+#preparando dados da coluna e desvio padrão 
+#2 colunas criadas 
+
+Tab_agrupada <- BDfinal %>% group_by(centro) %>% summarise(media = mean(IdadeMae), desvio = sd (IdadeMae)) 
+
+##########roda e já forma uma tabela
+
+view(Tab_agrupada)
+
+###conferir 
+
+summary(Tab_agrupada)
+
+table(Tab_agrupada$media, Tab_agrupada$desvio)
+
+##grafico de barras
+barplot(table(PE1$Caso_PE, PE1$Centro))
+
+#Graficos rapidos, testar dados 
+#Histograma uma dimensão
+qplot(x=Caso_PE,data=BDfinal)
+qplot(x=IdadeMae,data=BDfinal)
+qplot(x=Altura_v1,data = BDfinal)
+qplot(x=Nasc_peso,data=BDfinal)
+
+
+#fica sem limite separando as barras
+qplot(x=Caso_PE,data=BDfinal,geom="histogram")
+
+
+#MOntar tabela agrupada por centro
+#preparando dados da coluna e desvio padrão 
+#2 colunas criadas 
+
+NOVA <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/Socio_idade.xlsx", "Sheet1")
+
+##agrupar as calorias conforme grau de processamento
+NF <- filter(NOVA, class_nova ==1)
+PF <- filter(NOVA, class_nova ==2)
+UPF <- filter(NOVA, class_nova ==3)
+
+##agrupar grau de processamento mais as 4 categotegorias de renda
+NF_R1 <- filter(NOVA, class_nova == 1 & Renda_cat2 == 1)
+NF_R2 <- filter(NOVA, class_nova == 1 & Renda_cat2 == 2)
+NF_R3 <- filter(NOVA, class_nova == 1 & Renda_cat2 == 3)
+NF_R4 <- filter(NOVA, class_nova == 1 & Renda_cat2 == 4)
+
+PF_R1 <- filter(NOVA, class_nova == 2 & Renda_cat2 == 1)
+PF_R2 <- filter(NOVA, class_nova == 2 & Renda_cat2 == 2)
+PF_R3 <- filter(NOVA, class_nova == 2 & Renda_cat2 == 3)
+PF_R4 <- filter(NOVA, class_nova == 2 & Renda_cat2 == 4)
+
+UPF_R1 <- filter(NOVA, class_nova == 3 & Renda_cat2 == 1)
+UPF_R2 <- filter(NOVA, class_nova == 3 & Renda_cat2 == 2)
+UPF_R3 <- filter(NOVA, class_nova == 3 & Renda_cat2 == 3)
+UPF_R4 <- filter(NOVA, class_nova == 3 & Renda_cat2 == 4)
+
+###retirar colunas desnecessarias
+
+NF_R1 <- NF_R1 [ , -(5:10)]
+NF_R2 <- NF_R2 [ , -(5:10)]
+NF_R3 <- NF_R3 [ , -(5:10)]
+NF_R4 <- NF_R4 [ , -(5:10)]
+
+NF_R1 <- NF_R1 [ , -2]
+NF_R2 <- NF_R2 [ , -2]
+NF_R3 <- NF_R3 [ , -2]
+NF_R4 <- NF_R4 [ , -2]
+
+NF_R1 <- NF_R1 [ , -(3:4)]
+NF_R2 <- NF_R2 [ , -(3:4)]
+NF_R3 <- NF_R3 [ , -(3:4)]
+NF_R4 <- NF_R4 [ , -(3:4)]
+
+
+###retirar colunas desnecessarias
+
+PF_R1 <- NF_R1 [ , -(4:11)]
+PF_R2 <- NF_R2 [ , -(4:11)]
+PF_R3 <- NF_R3 [ , -(4:11)]
+PF_R4 <- NF_R4 [ , -(4:11)]
+
+
+UPF_R1 <- NF_R1 [ , -(4:11)]
+UPF_R2 <- NF_R2 [ , -(4:11)]
+UPF_R3 <- NF_R3 [ , -(4:11)]
+UPF_R4 <- NF_R4 [ , -(4:11)]
+
+
+####exportar
+
+write.xlsx(UPF_R1,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/UPF_R1.xlsx")
+write.xlsx(UPF_R2,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/UPF_R2.xlsx")
+write.xlsx(UPF_R3,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/UPF_R3.xlsx")
+write.xlsx(UPF_R4,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/UPF_R4.xlsx")
+
+write.xlsx(PF_R1,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/PF_R1.xlsx")
+write.xlsx(PF_R2,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/PF_R2.xlsx")
+write.xlsx(PF_R3,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/PF_R3.xlsx")
+write.xlsx(PF_R4,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/PF_R4.xlsx")
+
+
+write.xlsx(NF_R1,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/NF_R1.xlsx")
+write.xlsx(NF_R2,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/NF_R2.xlsx")
+write.xlsx(NF_R3,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/NF_R3.xlsx")
+write.xlsx(NF_R4,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/NF_R4.xlsx")
+
+
