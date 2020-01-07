@@ -1,0 +1,262 @@
+##Projeto SAMBA Tabelas
+##Autor Maria Miele
+
+###Script: transforma tabelas com o numero da variável e uma divisão entre parenteses
+
+######Juntando colunas de banco transposto para media e desvio padrão #####################
+
+install.packages("xlsx")
+
+library(xlsx)
+library(tibble)
+library(tidyr)
+library(magrittr)
+library(dplyr)
+library(tidyverse)
+library(reshape2)
+
+#formar tabela ja com separador para transferir para o artigo
+
+msd<-read.xlsx("C:/Users/Maju/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/Col_nutrients/Transp_micros.xlsx", "Tab1")
+
+head(msd)
+
+#deletar colunas indesejáveis
+
+msd<-msd[ , -(2:6)]
+head(msd)
+
+msd<-msd[ ,-(5:7)]
+head(msd)
+
+msd<-msd[ ,-2]
+
+#juntar colunas com separador de parenteses
+
+head("mds")
+
+names(msd)[1]<-("ID")
+names(msd)[2]<-("media")
+names(msd)[3]<-("desv")
+
+paste(msd$media, "(", msd$desv, ")")
+
+length(msd)
+dim(msd)
+msd[1:3]
+
+# Fim do cogigo das colunas
+
+#formar TABELA 3 ja com separador para transferir para o artigo
+
+tabela1<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Tabelas_R.xlsx", "Plan1")
+
+
+#juntar colunas com separador de parenteses
+
+class(tabela1)
+View(tabela1)
+dim(tabela1)
+
+tabela1.1 <- as.data.frame(matrix(ncol=6, nrow = 33))
+tabela1.1$V1<-paste(tabela1$N, "(", tabela1$X., ")")
+tabela1.1$V2 <- paste(tabela1$SE, "(" , tabela1$X.se, ")")
+tabela1.1$V3 <- paste(tabela1$NE, "(", tabela1$X.ne, ")")
+
+
+
+view(tabela1.1)
+tabela1.1 <- as.tibble(tabela1.1)
+
+
+
+#exportar para dropbox
+
+write.xlsx(tabela1.1,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Tabela1.1.xlsx")
+
+#####################################fim do cogigo  ################################
+
+#usar a formula para a tabela de micronutrientes
+#fases - usar a mesma sequencia da formula alterando os micros das regioes e totais 
+
+
+#deletar colunas indesejáveis
+
+dim(NS_insuf_tranp)
+NS_insuf_tranp<-NS_insuf_tranp[,-(2:9)]
+NS_insuf_tranp<-NS_insuf_tranp[,-(4)]
+
+
+#juntar colunas com separador de parenteses
+
+
+NS_insuf_tranp<-as.data.frame(NS_insuf_tranp)
+
+NS_insuf_arrumada<- paste(NS_insuf_tranp$V1, "±", NS_insuf_tranp$V2, "(", NS_insuf_tranp$V3, ")")
+ 
+NS_insuf_arrumada<-as.data.frame(NS_insuf_arrumada)
+
+#exportar para dropbox 
+
+write.xlsx(Regi_exc_arrumada,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/Micros/Regi_exc_arrumada.xlsx")
+
+
+#Transpor colunas com matrizes = tranpose
+t(B)  
+dim(B)
+
+#####################Segunda parte da Tabela 1
+
+
+tab1a<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/DescripBMI.xlsx", "Plan1")
+
+tab1a <- as.tibble(tab1a)
+
+#retorar linhas desnecessarias
+tab1a <- tab1a [-(1:7),]
+tab1a <- tab1a [-3,]
+
+#transpor
+tab1a <- t(tab1a)
+
+#juntar colunas com separador de parenteses
+
+tab1a <- as.data.frame(tab1a)
+tab1a<- paste(tab1a$V1, "±", tab1a$V2) 
+
+#exportar DB
+write.xlsx(tab1a,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/tab1a.xlsx")
+
+##Criar 2ª da Tabela 1 (sem soma das 4 DC)
+###Está sem Kg
+
+tab2a<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/DescripAntroSN.xlsx", "Plan1")
+
+tab2a <- as.tibble(tab2a)
+
+#retorar linhas desnecessarias
+dim(tab2a)
+tab2a <- tab2a[-(2:4),]
+tab2a <- tab2a [-4,]
+
+#transpor
+tab2a <- t(tab2a)
+
+#juntar colunas com separador de parenteses
+#transformar em DF para operar
+
+tab2a<-as.data.frame(tab2a)
+tab2a<- paste(tab2a$V2, "±", tab2a$V3, "(", tab2a$V1, ")")
+
+#exportar DB
+write.xlsx(tab2a,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/tab2a.xlsx")
+
+###mesmo processo com dados antropometricos do total da amostra
+###Está sem Kg
+
+tab2b<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/DescripAntroTT.xlsx", "Plan1")
+
+tab2b <- as.tibble(tab2b)
+
+#retorar linhas desnecessarias
+dim(tab2b)
+tab2b <- tab2b[-(2:4),]
+tab2b <- tab2b [-4,]
+
+#transpor
+tab2b <- t(tab2b)
+
+#juntar colunas com separador de parenteses
+#transformar em DF para operar
+
+tab2b<-as.data.frame(tab2b)
+tab2b<- paste(tab2b$V2, "±", tab2b$V3, "(", tab2b$V1, ")")
+
+#exportar DB
+write.xlsx(tab2b,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/tab2b.xlsx")
+
+
+#####Formar tabela de micronutrientes Tabela 2 com  min, media e maximo
+##importar tabela
+
+#formar TABELA 3 ja com separador para transferir para o artigo
+
+tabela2<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Micros/Descrimicros.xlsx", "Plan1")
+
+
+#retorar linhas desnecessarias
+dim(tabela2)
+tabela2 <- tabela2[-(7:12),]
+tabela2 <- tabela2 [-3,] 
+tabela2 <- tabela2 [-4,]
+
+#retorar colunas desnecessarias
+
+tabela2 <- tabela2[, -(5:6)]
+
+
+#agrupar colunas conforme centro
+#transformar em tibble para operar
+
+tabela2 <- as.tibble(tabela2)
+
+#separando 2 tabelas de acordo com regiao
+tab2NE<-tabela2[1:12]
+tab2SE<-tabela2[13:25]
+
+#retirar a 1 coluna da tbela do ne
+tab2NE<-tab2NE[ ,-1]
+tab2SE<-tab2SE[ ,-(4:5)]
+
+#Conferindo as 2 tabelas
+dim(tab2NE)
+dim(tab2SE)
+
+#renomear as colunas para unir
+
+names(tab2NE)[1]<-c("b12")
+names(tab2NE)[2]<-c("c")
+names(tab2NE)[3]<-c("d")
+names(tab2NE)[4]<-c("k")
+names(tab2NE)[5]<-c("cr")
+names(tab2NE)[6]<-c("mg")
+names(tab2NE)[7]<-c("se")
+names(tab2NE)[8]<-c("fo")
+names(tab2NE)[9]<-c("z")
+names(tab2NE)[10]<-c("ca")
+names(tab2NE)[11]<-c("fe")
+
+names(tab2SE)[1]<-c("b12")
+names(tab2SE)[2]<-c("c")
+names(tab2SE)[3]<-c("d")
+names(tab2SE)[4]<-c("k")
+names(tab2SE)[5]<-c("cr")
+names(tab2SE)[6]<-c("mg")
+names(tab2SE)[7]<-c("se")
+names(tab2SE)[8]<-c("fo")
+names(tab2SE)[9]<-c("z")
+names(tab2SE)[10]<-c("ca")
+names(tab2SE)[11]<-c("fe")
+
+
+##formatar igual a tabela 2 no artigo
+
+Tabela2 <- union(tab2NE,tab2SE)
+
+#exportar DB
+write.xlsx(Tabela2,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Micros/Tabela2.xlsx")
+
+
+
+###graficos de 2 dimensoes
+
+#usabdo banco iris
+#grafico de barra e coluna já formando tabela 
+
+
+gf <- BDfinal %>% group_by(centro) %>% #preparando dados da coluna e desvio padrão
+  summarise(media = mean(Peso_1v), desvio = sd (Peso_1v)) #2 colunas criadas
+
+#roda e forma uma tabela
+
+view(gf)
