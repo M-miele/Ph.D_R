@@ -1,0 +1,295 @@
+#Maria Miele
+#Script: ajustes e analise segundo NOVA Foods
+
+
+library(tidyverse)
+library(ggplot2)
+library(xlsx)
+library(gapminder)
+library(tibble)
+library(dplyr)
+library(magrittr)
+
+###trazer banco para conferencia
+NOVA <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/Dieta.xlsx", "Sheet")
+
+
+##Selecionar colunas de interesse do banco NOVA
+
+NOVA <- NOVA [ ,-(6:7)]
+NOVA <- NOVA [ , -(2:3)]
+
+##selecionar grupos conforme NOVA
+##agrupar as calorias conforme grau de processamento
+NF <- filter(NOVA, class_nova ==1) 
+PF <- filter(NOVA, class_nova ==2)
+UPF <- filter(NOVA, class_nova ==3)
+
+summary(NF)
+
+NF_SE <- filter(NF,NS == "SE") 
+PF_SE <- filter(PF, NS == "SE") 
+UPF_SE <- filter(UPF, NS == "SE") 
+
+
+NF_NE <- filter(NF, NS == "NE") 
+PF_NE <- filter(PF, NS == "NE") 
+UPF_NE <- filter(UPF, NS == "NE") 
+
+###unir os bancos
+
+NOVA_N <- cbind(NF_NE,PF_NE,UPF_NE)
+
+NOVAse<-bind_rows(NF_SE,PF_SE,UPF_SE) 
+NOVAne<-bind_rows(NF_NE,PF_NE,UPF_NE) 
+
+###agrupar por ID
+
+NF_NE1 <- NF_NE %>% group_by(ID) %>% nest()
+
+###soma colunas por região
+
+sum(NF_NE$kcal/555)
+
+###exportar para Dropbox
+
+write.xlsx(NF_NE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/NF_NE .xlsx")
+write.xlsx(PF_NE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/PF_NE .xlsx")
+write.xlsx(UPF_NE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/UPF_NE .xlsx")
+
+write.xlsx(NF_SE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/NF_SE .xlsx")
+write.xlsx(PF_SE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/PF_SE .xlsx")
+write.xlsx(UPF_SE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/UPF_SE .xlsx")
+
+
+##agrupar grau de processamento mais as 4 categotegorias de renda
+NF_g1 <- filter(NOVA, class_nova == 1 & piramide == 1)
+NF_g2 <- filter(NOVA, class_nova == 1 & piramide == 2)
+NF_g3 <- filter(NOVA, class_nova == 1 & piramide == 3)
+NF_g4 <- filter(NOVA, class_nova == 1 & piramide == 4)
+NF_g5 <- filter(NOVA, class_nova == 1 & piramide == 5)
+NF_g6 <- filter(NOVA, class_nova == 1 & piramide == 6)
+NF_g7 <- filter(NOVA, class_nova == 1 & piramide == 7)
+NF_g8 <- filter(NOVA, class_nova == 1 & piramide == 8)
+
+PF_g1 <- filter(NOVA, class_nova == 2 & piramide == 1)
+PF_g2 <- filter(NOVA, class_nova == 2 & piramide == 2)
+PF_g3 <- filter(NOVA, class_nova == 2 & piramide == 3)
+PF_g4 <- filter(NOVA, class_nova == 2 & piramide == 4)
+PF_g5 <- filter(NOVA, class_nova == 2 & piramide == 5)
+PF_g6 <- filter(NOVA, class_nova == 2 & piramide == 6)
+PF_g7 <- filter(NOVA, class_nova == 2 & piramide == 7)
+PF_g8 <- filter(NOVA, class_nova == 2 & piramide == 8)
+
+
+UPF_g1 <- filter(NOVA, class_nova == 3 & piramide == 1)
+UPF_g2 <- filter(NOVA, class_nova == 3 & piramide == 2)
+UPF_g3 <- filter(NOVA, class_nova == 3 & piramide == 3)
+UPF_g4 <- filter(NOVA, class_nova == 3 & piramide == 4)
+UPF_g5 <- filter(NOVA, class_nova == 3 & piramide == 5)
+UPF_g6 <- filter(NOVA, class_nova == 3 & piramide == 6)
+UPF_g7 <- filter(NOVA, class_nova == 3 & piramide == 7)
+UPF_g8 <- filter(NOVA, class_nova == 3 & piramide == 8)
+
+#montar tabelas com os resultados
+
+paste(mean(NF_g1$kcal),"±",sd(NF_g1$kcal))
+paste(mean(NF_g2$kcal),"±",sd(NF_g2$kcal))
+paste(mean(NF_g3$kcal),"±",sd(NF_g3$kcal))
+paste(mean(NF_g4$kcal),"±",sd(NF_g4$kcal))
+paste(mean(NF_g5$kcal),"±",sd(NF_g5$kcal))
+paste(mean(NF_g6$kcal),"±",sd(NF_g6$kcal))
+paste(mean(NF_g7$kcal),"±",sd(NF_g7$kcal))
+paste(mean(NF_g8$kcal),"±",sd(NF_g8$kcal))
+
+
+paste(mean(PF_g1$kcal),"±",sd(PF_g1$kcal))
+paste(mean(PF_g2$kcal),"±",sd(PF_g2$kcal))
+paste(mean(PF_g3$kcal),"±",sd(PF_g3$kcal))
+paste(mean(PF_g4$kcal),"±",sd(PF_g4$kcal))
+paste(mean(PF_g5$kcal),"±",sd(PF_g5$kcal))
+paste(mean(PF_g6$kcal),"±",sd(PF_g6$kcal))
+paste(mean(PF_g7$kcal),"±",sd(PF_g7$kcal))
+paste(mean(PF_g8$kcal),"±",sd(PF_g8$kcal))
+
+
+paste(mean(UPF_g1$kcal),"±",sd(UPF_g1$kcal))
+paste(mean(UPF_g2$kcal),"±",sd(UPF_g2$kcal))
+paste(mean(UPF_g3$kcal),"±",sd(UPF_g3$kcal))
+paste(mean(UPF_g4$kcal),"±",sd(UPF_g4$kcal))
+paste(mean(UPF_g5$kcal),"±",sd(UPF_g5$kcal))
+paste(mean(UPF_g6$kcal),"±",sd(UPF_g6$kcal))
+paste(mean(UPF_g7$kcal),"±",sd(UPF_g7$kcal))
+paste(mean(UPF_g8$kcal),"±",sd(UPF_g8$kcal))
+
+
+paste(mean(NF_g1$kcal)+mean(PF_g1$kcal)+mean(UPF_g1$kcal))
+paste(mean(NF_g2$kcal)+mean(PF_g2$kcal)+mean(UPF_g2$kcal))
+paste(mean(NF_g3$kcal)+mean(PF_g3$kcal)+mean(UPF_g3$kcal))
+paste(mean(NF_g4$kcal)+mean(PF_g4$kcal)+mean(UPF_g4$kcal))
+paste(mean(NF_g5$kcal)+mean(PF_g5$kcal)+mean(UPF_g5$kcal))
+paste(mean(NF_g6$kcal)+mean(PF_g6$kcal)+mean(UPF_g6$kcal))
+paste(mean(NF_g7$kcal)+mean(PF_g7$kcal)+mean(UPF_g7$kcal))
+paste(mean(NF_g8$kcal)+mean(PF_g8$kcal)+mean(UPF_g8$kcal))
+
+
+
+#### Ler banco de regiões para preparar Join com NOVA
+
+N <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/N.xlsx", "Plan1")
+
+###fazer join com NOVA
+
+NOVAR <- NOVA %>% left_join(N,by ="ID")
+
+### retirar a coluna com os 5 centros deixando somente 2 regioes
+
+NOVARc <- NOVAR [ , -5]
+
+##agrupar as calorias conforme grau de processamento
+NFc <- filter(NOVARc, class_nova ==1) 
+PFc <- filter(NOVARc, class_nova ==2)
+UPFc <- filter(NOVARc, class_nova ==3)
+
+##agrupar grau de processamento e os grupos da piramide conforme os centros
+NF_g1s <- filter(NOVARc, class_nova == 1 & piramide == 1 & centro == "SE")
+NF_g1n <- filter(NOVARc, class_nova == 1 & piramide == 1 & centro == "NE")
+
+NF_g2s <- filter(NOVARc, class_nova == 1 & piramide == 2 & centro == "SE")
+NF_g2n <- filter(NOVARc, class_nova == 1 & piramide == 2 & centro == "NE")
+
+NF_g3s <- filter(NOVARc, class_nova == 1 & piramide == 3 & centro == "SE")
+NF_g3n <- filter(NOVARc, class_nova == 1 & piramide == 3 & centro == "NE")
+
+NF_g4s <- filter(NOVARc, class_nova == 1 & piramide == 4 & centro == "SE")
+NF_g4n <- filter(NOVARc, class_nova == 1 & piramide == 4 & centro == "NE")
+
+
+NF_g5s <- filter(NOVARc, class_nova == 1 & piramide == 5 & centro == "SE")
+NF_g5n <- filter(NOVARc, class_nova == 1 & piramide == 5 & centro == "NE")
+
+NF_g6s <- filter(NOVARc, class_nova == 1 & piramide == 6 & centro == "SE")
+NF_g6n <- filter(NOVARc, class_nova == 1 & piramide == 6 & centro == "NE")
+
+NF_g7s <- filter(NOVARc, class_nova == 1 & piramide == 7 & centro == "SE")
+NF_g7n <- filter(NOVARc, class_nova == 1 & piramide == 7 & centro == "NE")
+
+
+NF_g8s <- filter(NOVARc, class_nova == 1 & piramide == 8 & centro == "SE")
+NF_g8n <- filter(NOVARc, class_nova == 1 & piramide == 8 & centro == "NE")
+ 
+
+PF_g1s <- filter(NOVARc, class_nova == 2 & piramide == 1 & centro == "SE")
+PF_g1n <- filter(NOVARc, class_nova == 2 & piramide == 1 & centro == "NE")
+
+PF_g2s <- filter(NOVARc, class_nova == 2 & piramide == 2 & centro == "SE")
+PF_g2n <- filter(NOVARc, class_nova == 2 & piramide == 2 & centro == "NE")
+
+PF_g3s <- filter(NOVARc, class_nova == 2 & piramide == 3 & centro == "SE")
+PF_g3n <- filter(NOVARc, class_nova == 2 & piramide == 3 & centro == "NE")
+
+PF_g4s <- filter(NOVARc, class_nova == 2 & piramide == 4 & centro == "SE")
+PF_g4n <- filter(NOVARc, class_nova == 2 & piramide == 4 & centro == "NE")
+
+PF_g5s <- filter(NOVARc, class_nova == 2 & piramide == 5 & centro == "SE")
+PF_g5n <- filter(NOVARc, class_nova == 2 & piramide == 5 & centro == "NE")
+
+PF_g6s <- filter(NOVARc, class_nova == 2 & piramide == 6 & centro == "SE")
+PF_g6n <- filter(NOVARc, class_nova == 2 & piramide == 6 & centro == "NE")
+
+PF_g7s <- filter(NOVARc, class_nova == 2 & piramide == 7 & centro == "SE")
+PF_g7n <- filter(NOVARc, class_nova == 2 & piramide == 7 & centro == "NE")
+
+PF_g8s <- filter(NOVARc, class_nova == 2 & piramide == 8 & centro == "SE")
+PF_g8n <- filter(NOVARc, class_nova == 2 & piramide == 8 & centro == "NE")
+
+UPF_g1s <- filter(NOVARc, class_nova == 3 & piramide == 1 & centro == "SE")
+UPF_g1n <- filter(NOVARc, class_nova == 3 & piramide == 1 & centro == "NE")
+
+UPF_g2s <- filter(NOVARc, class_nova == 3 & piramide == 2 & centro == "SE")
+UPF_g2n <- filter(NOVARc, class_nova == 3 & piramide == 2 & centro == "NE")
+
+UPF_g3s <- filter(NOVARc, class_nova == 3 & piramide == 3 & centro == "SE")
+UPF_g3n <- filter(NOVARc, class_nova == 3 & piramide == 3 & centro == "NE")
+
+UPF_g4s <- filter(NOVARc, class_nova == 3 & piramide == 4 & centro == "SE")
+UPF_g4n <- filter(NOVARc, class_nova == 3 & piramide == 4 & centro == "NE")
+
+UPF_g5s <- filter(NOVARc, class_nova == 3 & piramide == 5 & centro == "SE")
+UPF_g5n <- filter(NOVARc, class_nova == 3 & piramide == 5 & centro == "NE")
+
+UPF_g6s <- filter(NOVARc, class_nova == 3 & piramide == 6 & centro == "SE")
+UPF_g6n <- filter(NOVARc, class_nova == 3 & piramide == 6 & centro == "NE")
+
+UPF_g7s <- filter(NOVARc, class_nova == 3 & piramide == 7 & centro == "SE")
+UPF_g7n <- filter(NOVARc, class_nova == 3 & piramide == 7 & centro == "NE")
+
+UPF_g8s <- filter(NOVARc, class_nova == 3 & piramide == 8 & centro == "SE")
+UPF_g8n <- filter(NOVARc, class_nova == 3 & piramide == 8 & centro == "NE")
+
+#montar tabelas com os resultados
+
+paste(mean(NF_g1s$kcal),"±",sd(NF_g1s$kcal))
+paste(mean(NF_g1n$kcal),"±",sd(NF_g1n$kcal))
+paste(mean(NF_g2s$kcal),"±",sd(NF_g2s$kcal))
+paste(mean(NF_g2n$kcal),"±",sd(NF_g2n$kcal))
+paste(mean(NF_g3s$kcal),"±",sd(NF_g3s$kcal))
+paste(mean(NF_g3n$kcal),"±",sd(NF_g3n$kcal))
+paste(mean(NF_g4s$kcal),"±",sd(NF_g4s$kcal))
+paste(mean(NF_g4n$kcal),"±",sd(NF_g4n$kcal))
+paste(mean(NF_g5s$kcal),"±",sd(NF_g5s$kcal))
+paste(mean(NF_g5n$kcal),"±",sd(NF_g5n$kcal))
+paste(mean(NF_g6s$kcal),"±",sd(NF_g6s$kcal))
+paste(mean(NF_g6n$kcal),"±",sd(NF_g6n$kcal))
+paste(mean(NF_g7s$kcal),"±",sd(NF_g7s$kcal))
+paste(mean(NF_g7n$kcal),"±",sd(NF_g7n$kcal))
+paste(mean(NF_g8s$kcal),"±",sd(NF_g8s$kcal))
+paste(mean(NF_g8n$kcal),"±",sd(NF_g8n$kcal))
+
+paste(mean(PF_g1s$kcal),"±",sd(PF_g1s$kcal))
+paste(mean(PF_g1n$kcal),"±",sd(PF_g1n$kcal))
+paste(mean(PF_g2s$kcal),"±",sd(PF_g2s$kcal))
+paste(mean(PF_g2n$kcal),"±",sd(PF_g2n$kcal))
+paste(mean(PF_g3s$kcal),"±",sd(PF_g3s$kcal))
+paste(mean(PF_g3n$kcal),"±",sd(PF_g3n$kcal))
+paste(mean(PF_g4s$kcal),"±",sd(PF_g4s$kcal))
+paste(mean(PF_g4n$kcal),"±",sd(PF_g4n$kcal))
+paste(mean(PF_g5s$kcal),"±",sd(PF_g5s$kcal))
+paste(mean(PF_g5n$kcal),"±",sd(PF_g5n$kcal))
+paste(mean(PF_g6s$kcal),"±",sd(PF_g6s$kcal))
+paste(mean(PF_g6n$kcal),"±",sd(PF_g6n$kcal))
+paste(mean(PF_g7s$kcal),"±",sd(PF_g7s$kcal))
+paste(mean(PF_g7n$kcal),"±",sd(PF_g7n$kcal))
+paste(mean(PF_g8s$kcal),"±",sd(PF_g8s$kcal))
+paste(mean(PF_g8n$kcal),"±",sd(PF_g8n$kcal))
+
+paste(mean(UPF_g1s$kcal),"±",sd(UPF_g1s$kcal))
+paste(mean(UPF_g1n$kcal),"±",sd(UPF_g1n$kcal))
+paste(mean(UPF_g2s$kcal),"±",sd(UPF_g2s$kcal))
+paste(mean(UPF_g2n$kcal),"±",sd(UPF_g2n$kcal))
+paste(mean(UPF_g3s$kcal),"±",sd(UPF_g3s$kcal))
+paste(mean(UPF_g3n$kcal),"±",sd(UPF_g3n$kcal))
+paste(mean(UPF_g4s$kcal),"±",sd(UPF_g4s$kcal))
+paste(mean(UPF_g4n$kcal),"±",sd(UPF_g4n$kcal))
+paste(mean(UPF_g5s$kcal),"±",sd(UPF_g5s$kcal))
+paste(mean(UPF_g5n$kcal),"±",sd(UPF_g5n$kcal))
+paste(mean(UPF_g6s$kcal),"±",sd(UPF_g6s$kcal))
+paste(mean(UPF_g6n$kcal),"±",sd(UPF_g6n$kcal))
+paste(mean(UPF_g7s$kcal),"±",sd(UPF_g7s$kcal))
+paste(mean(UPF_g7n$kcal),"±",sd(UPF_g7n$kcal))
+paste(mean(UPF_g8s$kcal),"±",sd(UPF_g8s$kcal))
+paste(mean(UPF_g8n$kcal),"±",sd(UPF_g8n$kcal))
+
+#####somar as kcals cada macrogrupo de cada região
+
+paste(mean(NF_g1s$kcal)+mean(PF_g1s$kcal)+mean(UPF_g1s$kcal))
+paste(mean(NF_g2s$kcal)+mean(PF_g2s$kcal)+mean(UPF_g2s$kcal))
+paste(mean(NF_g3s$kcal)+mean(PF_g3s$kcal)+mean(UPF_g3s$kcal))
+paste(mean(NF_g4s$kcal)+mean(PF_g4s$kcal)+mean(UPF_g4s$kcal))
+paste(mean(NF_g5s$kcal)+mean(PF_g5s$kcal)+mean(UPF_g5s$kcal))
+paste(mean(NF_g6s$kcal)+mean(PF_g6s$kcal)+mean(UPF_g6s$kcal))
+paste(mean(NF_g7s$kcal)+mean(PF_g7s$kcal)+mean(UPF_g7s$kcal))
+paste(mean(NF_g8s$kcal)+mean(PF_g8s$kcal)+mean(UPF_g8s$kcal))
+
+
+
