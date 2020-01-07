@@ -1,0 +1,100 @@
+###Maria Miele
+### Script: forma tabela dos dados e cria graficos boxplot 
+
+##baixar pacotes
+ library(tidyverse)
+ library(readr)
+ library(xlsx)
+ library(ggplot2)
+ library(ggthemes)
+ library(gplots)
+ 
+ ###trabalhando antropometria
+ 
+ BDfinal<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/BBase_final.xlsx","Sheet1")
+ Antro<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/AntroTT.xlsx","Tab1")
+ 
+ #Usar banco total 1166 definindo por 2 regioes
+ Antro$Region <- gsub ("UNICAMP", "SE", Antro$Region)
+ Antro$Region <- gsub ("UNESP", "SE", Antro$Region)
+ Antro$Region <- gsub ("UFRGS", "SE", Antro$Region)
+ 
+ Antro$Region <- gsub ("MEAC", "NE", Antro$Region)
+ Antro$Region <- gsub ("UFPE", "NE", Antro$Region)
+ 
+ ###Numero de cada visita MUAC e BMI
+ 
+ length(Antro$BMI_1)
+ 
+ 
+ ##filtrar Gestation Age -- faz uma linha do tempo
+ ##forma linha do tempo com colunas coloridas e separadas pela GA1 ou GA2
+ ##grafico rapido
+ qplot(data=Antro,x=MUAC_1,fill=Region) 
+ qplot(data=Antro,x=BMI_1,fill=Region)
+ 
+ 
+ 
+ #Graficos rapidos, testar dados 
+ #Histograma uma dimensão
+ qplot(x=BMI_1,data=Antro)
+ qplot(x=BMI_2,data=Antro)
+ qplot(x=BMI_1,data=Antro)
+ qplot(x=MUAC_1,data=Antro)
+ qplot(x=MUAC_2,data=Antro)
+ qplot(x=MUAC_3,data=AntroBF)
+ 
+ #duas dimensões
+ #padrao geom="point"
+ qplot(x=BMI_1, y=MUAC_1, data = Antro) 
+ qplot(x=BMI_2, y=MUAC_2, data = Antro)
+ qplot(x=BMI_3, y=MUAC_3, data = Antro) 
+ 
+ #cores de acordo com o centro ====== fazer MUAC e IMC============================
+ #sem especificar fica o de pontos
+ qplot(x=MUAC_1, y=BMI_1, data = Antro, color=Region) 
+ 
+ ############mais complexidade
+ #cria objeto com dados antropometricos
+  ###altera centro passando para SE e NE nas linhas
+ 
+ h<- ggplot(AntroBF)
+ 
+ h+ geom_histogram(aes(MUAC1,fill=centro),binwidth=0.1,alpha=0.3,colour="black")
+ 
+ 
+ #fill= preenchimento
+ #alpha = transparencia
+ #colour=contorno
+ 
+ 
+ #o diagrama de densidade usa formala de kenEl CURVA EM CORES
+ #para isso n acontecer usa o argumento *..count.. para ele plotar quais as obs de cada um para ele fazer a altura
+ h+geom_density(aes(MUAC1,..count..,fill=centro),alpha=0.5, colour="black")
+ h+geom_density(aes(BMI_1,..count..,fill=Region),alpha=0.5, colour="black")
+ h+geom_density(aes(Sum_SF1,..count..,fill=Region),alpha=0.5, colour="black")
+ 
+ h+geom_density(aes(MUAC_2,..count..,fill=Region),alpha=0.5, colour="black")
+ h+geom_density(aes(BMI_2,..count..,fill=Region),alpha=0.5, colour="black")
+ h+geom_density(aes(Sum_SF2,..count..,fill=Region),alpha=0.5, colour="black")
+
+ h+geom_density(aes(MUAC_3,..count..,fill=Region),alpha=0.5, colour="black")
+ h+geom_density(aes(BMI_3,..count..,fill=Region),alpha=0.5, colour="black")
+ h+geom_density(aes(Sum_SF3,..count..,fill=Region),alpha=0.5, colour="black")
+ 
+ 
+ #size tamanho das bolhas - scale estaca do tamanho quando é continuo arranjado pelo tamanho min e max
+ 
+ Antro %>% ggplot(aes(x= MUAC_1, y=BMI_1,size=Sum_SF1,color=Region))+
+         geom_point(alpha=0.3)
+ 
+ Antro %>% ggplot(aes(x= MUAC_2, y=BMI_2,size=Sum_SF2,color=Region))+
+         geom_point(alpha=0.3)
+ 
+ Antro %>% ggplot(aes(x= MUAC_3, y=BMI_3,size=Sum_SF3,color=Region))+
+         geom_point(alpha=0.3)
+ 
+ 
+ 
+ 
+ 
