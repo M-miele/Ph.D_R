@@ -1,0 +1,572 @@
+#Projeto SAMBA - autor Maria Miele
+#O que esse script: importa bancos de bancos do excel, organiza dados e mescla grupos
+#Exporta para o Dropbox no excel  
+
+
+######Juntando colunas de banco transposto para media e desvio padrão 
+#####################################fim do cogigo  ################################
+
+
+
+##Lendo os Arquivos EER e kcal do SAMBA
+
+
+EER_total17<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/EER_total.xlsx","Tab17")
+EER_total18<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/EER_total.xlsx","Tab18")
+
+NE17<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/EER_NE.xlsx","Tab17")
+NE18<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/EER_NE.xlsx","Tab18")
+
+SE17<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/EER_SE.xlsx","Tab17")
+SE18<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/EER_SE.xlsx","Tab18")
+
+kcalNE<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/kcals.xlsx","kcaNE")
+KcalSE<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/kcals.xlsx","KcaSE")
+
+##trazendo as colunas de interesse
+
+NE17_c<- NE17[ ,-(2)]
+NE18_c<- NE18[ ,-(2)]
+
+SE17_c<- SE17[ ,-(2)]
+SE18_c<- SE18[ ,-(2)]
+
+kcalNE_c<- kcalNE[ ,-(2)]
+kcalSE_c<- KcalSE[ ,-(2)]
+
+###Mesclar kcal e EER de acordo com as idades das pacientes 
+#meclar EER e kcal nordeste pelo ID
+
+n17 <- NE17_c %>% left_join(kcalNE_c, by= "ID")
+n18 <- NE18_c %>% left_join(kcalNE_c, by= "ID")
+
+
+#meclar EER e kcal sudeste pelo ID
+
+s17 <- SE17_c %>% left_join(kcalSE_c, by= "ID")
+s18 <- SE18_c %>% left_join(kcalSE_c, by= "ID")
+
+
+
+# importar para meu dropbox
+
+write.xlsx(s17,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/nkcal17.xlsx")
+write.xlsx(s18,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/nkcal18.xlsx")
+
+write.xlsx(n17,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/skcal17.xlsx")
+write.xlsx(n18,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/sckal18.xlsx")
+
+
+##Lendo os Arquivos sociodemograficos das regioes do SAMBA 
+
+
+socio<-read.xlsx("C:/Users/maju/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/BBase.xlsx","Plan1")
+IDnames<-read.xlsx("C:/Users/maju/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/ID_regioes.xlsx","Tab1")
+
+##trazendo as colunas de interesse
+
+socio_c<- socio[ ,-(9:21)]
+
+#meclar sociodemograficos e regiões pelo ID
+
+socioregis<- socio_c %>% left_join(IDnames, by= "ID")
+
+# exportar para meu dropbox
+
+write.xlsx(socioregis,"C:/Users/maju/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/socioregis.xlsx")
+
+
+##Lendo os Arquivos piramide 
+
+
+G1<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/BD_pyramid.xlsx","G1P")
+G2<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/BD_pyramid.xlsx","G2P")
+G3<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/BD_pyramid.xlsx","G3P")
+G4<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/BD_pyramid.xlsx","G4P")
+G5<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/BD_pyramid.xlsx","G5P")
+G6<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/BD_pyramid.xlsx","G6P")
+G7<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/BD_pyramid.xlsx","G7P")
+G8<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/BD_pyramid.xlsx","G8P")
+
+#### calcular adequação com o guia
+#Aplicar funções nos grupos em colunas - agrupa em colunas 
+
+
+PercentG1 <- G1 %>% summarise((mean(Grains)*100/9)+(mean(Grains)*100/5))/2
+PercentG2 <- G2 %>% summarise((mean(Vegetables)*100/5)+(mean(Vegetables)*100/4))/2
+PercentG3 <- G3 %>% summarise((mean(Fruit)*100/5)+(mean(Fruit)*100/3))/2
+PercentG4 <- G4 %>% summarise(mean(Dairy)*100/3)
+PercentG5 <- G5 %>% summarise((mean(Meat.eggs)*100/2)+(mean(Meat.eggs)*100/1))/2
+PercentG6 <- G6 %>% summarise((mean(Beans)*100/2)+(mean(Beans)*100/1))/2
+PercentG7 <- G7 %>% summarise((mean(Sweet)*100/2)+(mean(Sweet)*100/1))/2
+PercentG8 <- G8 %>% summarise((mean(Fat)*100/2)+(mean(Fat)*100/1))/2
+
+
+##seleciona por região
+#Sul
+
+
+G1s <- G1 [-(586:1141), ]
+G1s <- G1s [ ,-(7:9)]
+
+G2s <- G2 [-(398:1141), ]
+G2s <- G2s [ ,-(7:9)]
+
+G3s <- G3 [-(450:1141), ]
+G3s <- G3s [ ,-(7:9)]
+
+summary(G4)
+#NA's   :401 
+873-401
+G4s <- G4 [-(473:873), ]
+G4s <- G4s [ ,-(7:9)]
+
+summary(G5)
+#NA's   :543  
+1097-543
+G5s <- G5 [-(555:1097), ]
+G5s <- G5s [ ,-(7:9)]
+
+G6s <- G6 [-(388:723), ]
+G6s <- G6s [ ,-(7:9)]
+
+G7s <- G7 [-(406:741), ]
+G7s <- G7s [ ,-(7:9)]
+
+G8s <- G8 [-(538:1045), ]
+G8s <- G8s [ ,-(7:9)]
+
+PecG1s <- G1s %>% summarise((mean(Grains.1)*100/9)+(mean(Grains.1)*100/5))/2
+PecG2s <- G2s%>% summarise((mean(G2_S)*100/5)+(mean(G2_S)*100/4))/2
+PercG3s <- G3s%>% summarise((mean(G3_S)*100/5)+(mean(G3_S)*100/3))/2
+PercG4s <- G4s %>% summarise(mean(G4_S)*100/3)
+PercG5s <- G5s %>% summarise((mean(G5_S)*100/2)+(mean(G5_S)*100/1))/2
+PercG6s <- G6s %>% summarise((mean(G6_S)*100/2)+(mean(G6_S)*100/1))/2
+PercG7s <- G7s %>% summarise((mean(G7_S)*100/2)+(mean(G7_S)*100/1))/2
+PercG8s <- G8s %>% summarise((mean(G8_S)*100/2)+(mean(G8_S)*100/1))/2
+
+
+##NE
+
+G1n <- G1 [-(556:1141), ]
+G1n <- G1n [ ,-(1:6)]
+
+G2n <- G2 [ ,-(1:6)]
+G2n <- G2n [-(213:631), ]
+
+G3n <- G3 [ ,-(1:6)]
+G3n <- G3n [-(431:879), ]
+
+G4n <- G4 [ ,-(1:6)]
+G4n <- G4n [-(402:873), ]
+
+G5n <- G5 [ ,-(1:6)]
+G5n <- G5n [-(544:1097), ]
+
+G6n <- G6 [ ,-(1:6)]
+G6n <- G6n [-(337:723), ]
+
+G7n <- G7 [ ,-(1:6)]
+G7n <- G7n [-(333:741), ]
+
+G8n <- G8 [ ,-(1:6)]
+G8n <- G8n [-(508:1045), ]
+
+
+
+PecG1n <- G1n %>% summarise((mean(Grains.2)*100/9)+(mean(Grains.2)*100/5))/2
+PecG2n <- G2n%>% summarise((mean(G2_N)*100/5)+(mean(G2_N)*100/4))/2
+PercG3 <- G3n%>% summarise((mean(G3_N)*100/5)+(mean(G3_N)*100/3))/2
+PercG4n <- G4n %>% summarise(mean(G4_N)*100/3)
+PercG5n <- G5n %>% summarise((mean(G5_N)*100/2)+(mean(G5_N)*100/1))/2
+PercG6n <- G6n %>% summarise((mean(G6_N)*100/2)+(mean(G6_N)*100/1))/2
+PercG7n <- G7n %>% summarise((mean(G7_N)*100/2)+(mean(G7_N)*100/1))/2
+PercG8n <- G8n %>% summarise((mean(G8_N)*100/2)+(mean(G8_N)*100/1))/2
+
+
+
+
+#lendo os bancos de BMI 
+obesi<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/Antropometria/Antro.xlsx","OB")
+adeq<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/Antropometria/Antro.xlsx","AD")
+
+
+#mesclando 2 banco conforme imc
+
+pirad <-left_join(piramide,adeq,by="ID")
+pirob <-left_join(piramide,obesi,by="ID")
+
+
+#exportando para dropbox
+
+write.xlsx(pirob,"C:/Users/maju/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/pirob.xlsx")
+write.xlsx(pirad,"C:/Users/maju/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/pirad.xlsx")
+
+
+#Unir todos os individuos em um só banco
+
+
+EER_BD<-rbind(EER_total17,EER_total18)
+dim(EER_BD)
+mean(EER_BD$EER)
+
+#ler banco kcal
+
+kcal_BD<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_Kcals/Kcals.xlsx","kcal")
+
+#mesclar EER total com kcal total
+
+EER_kcal <- EER_BD %>% left_join(kcal_BD, by = "ID")
+EER_kcal$EER
+
+dim(EER_kcal)
+mean(EER_kcal$Kcal)
+sd(EER_kcal$Kcal)
+
+sd(EER_kcal$EER)/mean(EER_kcal$EER)
+
+
+#exportar para o dropbox
+
+write.xlsx(EER_kcal,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/EER_kcal.xlsx")
+
+
+# ler o arquivo de idade gestacional para mesclar com os dados antropometricos
+
+idadegesta<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/Antopometria/GAW.xlsx","Plan1")
+
+#meclar idade gestacional com IMC pelo ID
+
+BMI_IG<- Antro %>% left_join(idadegesta, by= "ID")
+
+#exportar para dropbox como excel 
+
+write.xlsx(BMI_IG,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Analyzes/Antropometria.xlsx")
+
+
+#####Comparando o consumo de acordo com caracteristicas sociodemograficas
+
+#importando arquivos
+
+SociDemo<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/BBase_final.xlsx","Sheet1")
+dieta<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/Dieta.xlsx","Plan1")
+
+#excluir colunas desnecessarias
+
+view(SociDemo)
+SociDemo<-SociDemo[ ,-2]
+dim(SociDemo)
+SociDemo<-SociDemo[ ,-(8:16)]
+
+
+dieta<-dieta[ ,-2]
+dieta<-dieta[ ,-6]
+
+#meclar idade materna com dieta pelo ID
+
+Socio_idade<- dieta %>% left_join(SociDemo, by= "ID")
+
+#exportar para dropbox como excel 
+
+write.xlsx(Socio_idade,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/Socio_idade.xlsx")
+
+
+####mesclar o banco contendo dados de educação e estado civil e as kcal conforme NOVA
+##ler os 2 bancos
+
+kcalNOVA<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/NOVA/Dieta.xlsx","Plan1")
+Educa<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/BBase.xlsx","Plan1")
+
+
+#deletar colunas desnecessárias para a mescla
+
+Educa<-Educa[ , -(2:4)]
+Educa<-Educa[ ,-(6:25)]
+
+#mesclar dados relacionados e educação e as kcal e consumo da piramide 
+
+Socio_NOVA <- kcalNOVA%>% left_join(Educa, by = "ID")
+
+dim(Socio_NOVA)
+
+
+#exportar para o dropbox
+
+write.xlsx(Socio_NOVA,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Socio_NOVA.xlsx")
+
+####Ajustar o banco dos desfechos de acordo com o N que eu tenho dos R24h 
+#ler o banco para fazer o join
+
+outcome <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Desfecho/Outcome.xlsx","Plan1") 
+N <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/N.xlsx","Plan1") 
+
+##fazer o join com AntroBF na preferencia
+
+outcome <- left_join(N,outcome, by = "ID")
+
+#verificar banco
+
+summary(outcome)
+
+#exportar para o dropbox
+
+write.xlsx(outcome,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Desfecho/outcome2.xlsx")
+
+#####Avaliar o banco Base 
+
+BBase_final 
+
+#verificar banco
+
+summary(BBase_final)
+
+#separar por centros
+
+
+
+#exportar para o dropbox
+
+write.xlsx(BBase_final,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/BBase_final.xlsx")
+
+
+##mesclar o bando total de micronutrientes com o bando de idade materna para adequação as DRIs
+#Selecionar apenas a idade materna do banco base final arrumado
+
+IdadeMae <-BBase_final[ , -(3:16)]
+length(IdadeMae)
+IdadeMae <-IdadeMae[ , -(4:28)]
+
+view(MicroBD)
+
+#mesclar 2 bancos 
+
+Micro_idade <- left_join(MicroBD,IdadeMae, by = "ID")
+Micro_idade <- Micro_idade [ ,-16]
+
+#exportar para DB micro idade total
+
+write.xlsx(Micro_idade,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Micros/Micro_idadeTT.xlsx")
+
+##separar o banco por centro
+#selecionar colunas
+#group_by - agrupar por "speacies"
+#marca variáveis por grupos
+
+MicroId_NE <- group_by(Micro_idade,centro.x)
+
+#filtrar 
+
+MicroId_UNICAMP <-filter(Micro_idade,centro.x == "UNICAMP") 
+MicroId_UNESP <-filter(Micro_idade,centro.x == "UNESP") 
+MicroId_UFRGS <-filter(Micro_idade,centro.x == "UFRGS") 
+
+MicroId_NE <- left_join(Micro_idade, )
+
+
+####Mesclar bancos idade de percentual da DRI para mesclar em um só banco total
+###ler bancos
+
+DRI17<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Micros/Microage_DRI.xlsx","Plan1")
+DRI18<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Micros/Microage_DRI.xlsx","Plan2")
+
+
+##conferir os dados
+
+dim(DRI17)
+dim(DRI18)
+
+##mesclar os bancos
+
+DRI_total <- full_join(DRI18,DRI17, by = "ID")
+
+dim(DRI_total)
+
+dim(MicroBD)
+
+#exportar para DB micro idade total
+
+write.xlsx(DRI_total,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Micros/DRI_total.xlsx")
+
+
+##separar o banco por centro
+#selecionar colunas
+#group_by - agrupar por "SFA"
+#marca variáveis por grupos
+#importar banco de macros
+
+BDMacros<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Macros/Macro_total.xlsx","Tab1")
+
+dim(BDMacros)
+
+SFA <- BDMacros[,-(3:6)]
+SFA <- SFA[,-(6:14)]
+SFA <- SFA[,-(4:5)]
+
+#renomear coluna
+names(SFA)[3]<-("c")
+
+
+#filtrar coluna SFA valores entre 5 e 10
+
+SFAadeq <- filter(SFA, between(c,5,10)) 
+dim(SFAadeq)
+
+
+#filtrar grupo sudeste
+
+SFAUnic <- filter(SFAadeq,centro == "UNICAMP") 
+SFAUnesp <- filter(SFAadeq,centro == "UNESP") 
+SFAUFRGS <- filter(SFAadeq,centro == "UFRGS") 
+
+dim(SFAUnic)
+dim(SFAUnesp)
+dim(SFAUFRGS)
+
+#Mesclar sudeste
+
+SFA_SE <- full_join(SFA_SE,SFAUFRGS, by = "ID")
+dim(SFA_SE)
+
+#filtrar grupo nordeste
+
+SFAmeac <- filter(SFAadeq,centro == "MEAC") 
+SFAUpfe <- filter(SFAadeq,centro == "UFPE") 
+
+dim(SFAmeac)
+dim(SFAUpfe)
+
+#Mesclar nordeste
+
+SFA_NE <- full_join(SFAmeac,SFAUpfe, by = "ID")
+
+
+#exportar para dropbox
+
+write.xlsx(SFA_NE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Macros/SFA_NE.xlsx")
+
+write.xlsx(SFA_SE,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Macros/SFA_SE.xlsx")
+
+write.xlsx(SFAadeq,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Macros/SFAadeq.xlsx")
+
+
+###boxplot e grafico de violino mpg
+
+BD <- ggplot(BBase_final)
+
+g+geom_boxplot(aes())
+
+
+####m##ler o banco de macronutriente para estatistica e formar tabela artigo 1
+
+Macro<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Macros/Macro_total.xlsx","Tab1")
+
+
+#Selecionar as colunas de interesse para adequação as DRIs dos 3 macros, centros e ID
+
+MacroAD <- Macro [ ,-(2:15)]
+
+##analise estatistica
+
+summary(MacroAD)
+
+paste(median(MacroAD$Protein...), median(MacroAD$Carbohydrate...), median(MacroAD$Lipids...))
+
+(mean(MacroAD$Protein...)*100/10)
+(mean(MacroAD$Protein...)*100/35)
+
+(mean(MacroAD$Carbohydrate...)*100/45)
+(mean(MacroAD$Carbohydrate...)*100/65)
+
+(mean(MacroAD$Lipids...)*100/20)
+(mean(MacroAD$Lipids...)*100/35)
+
+####Selecionar de acordo com Centros - Region SE
+
+MacroSE <- MacroAD 
+
+MacroSE <- filter(MacroSE, Region == "SE")
+
+(mean(MacroSE$Protein...)*100/10)
+(mean(MacroSE$Protein...)*100/35)
+
+(mean(MacroSE$Carbohydrate...)*100/45)
+(mean(MacroSE$Carbohydrate...)*100/65)
+
+(mean(MacroSE$Lipids...)*100/20)
+(mean(MacroSE$Lipids...)*100/35)
+
+summary(MacroSE)
+
+####Selecionar de acordo com Centros - Region NE
+
+MacroNE <- MacroAD 
+
+MacroNE <- filter(MacroNE, Region == "NE")
+
+(mean(MacroNE$Protein...)*100/10)
+(mean(MacroNE$Protein...)*100/35)
+
+(mean(MacroNE$Carbohydrate...)*100/45)
+(mean(MacroNE$Carbohydrate...)*100/65)
+
+(mean(MacroNE$Lipids...)*100/20)
+(mean(MacroNE$Lipids...)*100/35)
+
+summary(MacroNE)
+
+###aplicando test de significancia
+t.test(MacroNE$Protein..., MacroSE$Protein...)
+
+t.test(MacroNE$Carbohydrate..., MacroSE$Carbohydrate...)
+
+t.test(MacroNE$Lipids..., MacroSE$Lipids...)
+
+
+
+#Graficos rapidos, testar dados 
+#Histograma uma dimensão
+qplot(x=Protein...,data=MacroNE)
+qplot(x=Lipids...,data=MacroSE)
+
+###repetir os processos com as calorias
+
+CaloriasBD <- Macro
+
+CaloriasBD <- CaloriasBD [ ,-(4:18)]
+
+summary(CaloriasBD)
+
+
+####Selecionar de acordo com Centros - Region SE
+
+CaloriaSE <- CaloriasBD 
+
+CaloriaSE <- filter(CaloriaSE, Region == "SE")
+
+CaloriaSE <- CaloriaSE [ ,-2]
+  
+summary(CaloriaSE)
+
+is.na(CaloriaSE$Protein...)
+
+
+####Selecionar de acordo com Centros - Region NE
+CaloriaNE <- CaloriasBD 
+
+CaloriaNE <- filter(CaloriaNE, Region == "NE")
+
+CaloriaNE <- CaloriaNE [ ,-2]
+
+#filtra so trazendo o que não é NA
+
+as.numeric(CaloriaSE$Calories.kcal.)
+as.numeric(CaloriaNE$Calories.kcal.) 
+
+
+###aplicando test de significancia
+t.test(CaloriaNE$Calories.kcal.,CaloriaSE$Calories.kcal.)
+
+#Graficos rapidos, testar dados 
+#Histograma uma dimensão
+qplot(x=Calories.kcal.,data=CaloriaNE)
+qplot(x=Calories.kcal.,data=CaloriaSE)
