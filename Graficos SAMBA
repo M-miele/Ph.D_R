@@ -1,0 +1,301 @@
+###Maria Miele
+##script para graficos do SAMBA
+
+library(xlsx)
+library(tidyverse)
+library(ggplot2)
+library(xlsx)
+library(gapminder)
+library(magrittr)
+
+
+#o ggplot tem pacotes de extensão para ele. Uma recomendada é ggtheme
+#install.packages("ggthemes") usando a ferrament packages 
+
+install.packages("ggthemes") 
+library(ggthemes)
+
+
+BDfinal<-read.xlsx("C:/Users/maju/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/BBase_final.xlsx","Sheet1")
+
+
+#Graficos rapidos, testar dados 
+#Histograma uma dimensão
+qplot(x=Peso_1v,data=BDfinal)
+qplot(x=IdadeMae,data=BDfinal)
+qplot(x=Altura_v1,data = BDfinal)
+qplot(x=Nasc_peso,data=BDfinal)
+
+
+#fica sem limite separando as barras
+qplot(x=Peso_1v,data=BDfinal,geom="histogram")
+
+
+#duas dimensões
+#padrao geom="point"
+qplot(x=Peso_1v, y=Altura_1v, data = BDfinal) 
+#padrao geom="linha"
+qplot(x=Peso_1v, y=Altura_1v, data = BDfinal, geom="line")
+#liga um valor ao prox
+qplot(x=Peso_1v, y=Altura_1v, data = BDfinal, geom="path") 
+
+#cores de acordo com o centro ====== fazer MUAC e IMC============================
+#sem especificar fica o de pontos
+qplot(x=Peso_1v, y=Altura_1v, data = BDfinal, color=centro) 
+
+#formato de acordo com o centro ou IMC ou idade....
+qplot(x=Peso_1v, y=Altura_1v, data = BDfinal, shape=centro)
+
+#ambos
+qplot(x=Peso_1v, y=Altura_1v, data = BDfinal, shape=centro, color=centro) 
+
+##################barras
+#grafico de barra
+ggplot(BDfinal, aes(Peso_1v))+geom_bar() 
+
+#histograma - avisa que esta utilizando bin sem valor
+ggplot(BDfinal, aes(Peso_1v))+geom_histogram() 
+
+ggplot(BDfinal, aes(Peso_1v))+geom_histogram(binwidth = 0.4) 
+
+#############poligano de frequencia
+#opçao de escolher o bin (largura)
+ggplot(BDfinal, aes(Peso_1v))+geom_freqpoly() 
+ggplot(BDfinal, aes(Peso_1v))+geom_freqpoly(binwidth = 0.1)
+
+
+#grafico de pontos
+ggplot(iris, aes(Petal.Length))+geom_dotplot(binwidth = 0.1)
+
+#estimativa de sensidade de kernel
+ggplot(BDfinal, aes(Peso_1v))+geom_density()
+
+
+############mais complexidade
+#cria objeto com dados antropometricos
+
+###altera centro passando para SE e NE nas linhas
+
+
+
+k<- ggplot(AntNS)
+
+k+ geom_histogram(aes(MUAC1,fill=centro),binwidth=0.1,alpha=0.3,colour="black")
+
+
+#fill= preenchimento
+#alpha = transparencia
+#colour=contorno
+
+#sabendo que dentro do () aes é sempre função da colula e fora das bordas
+#pode inverter borda e preenchimento interno
+k+ geom_histogram(aes(MUAC1,colour=centro),binwidth=0.1,alpha=0.3,fill="black")
+
+#tirando a transparencia do preto
+k+ geom_histogram(aes(MUAC1,colour=centro),binwidth=0.1,fill="black")
+
+#igual so que com grafico de densidade (formula de kenel) - CURVA EM CORES ###tentar sobrepor MUAC
+k+ geom_density(aes(MUAC1, fill=centro), alpha=0.3,colour="black")
+k+ geom_density(aes(BMI1, fill=centro), alpha=0.3,colour="black")
+
+#o diagrama de densidade usa formala de kenEl CURVA EM CORES
+#para isso n acontecer usa o argumento *..count.. para ele plotar quais as obs de cada um para ele fazer a altura
+k+geom_density(aes(MUAC1,..count..,fill=centro),alpha=0.5, colour="black")
+k+geom_density(aes(BMI1,..count..,fill=centro),alpha=0.5, colour="black")
+
+k+geom_density(aes(MUAC2,..count..,fill=centro),alpha=0.5, colour="black")
+k+geom_density(aes(BMI2,..count..,fill=centro),alpha=0.5, colour="black")
+
+k+geom_density(aes(MUAC3,..count..,fill=centro),alpha=0.5, colour="black")
+k+geom_density(aes(BMI3,..count..,fill=centro),alpha=0.5, colour="black")
+
+#igual com poligano de frequencia
+k+ geom_freqpoly(aes(MUAC1, colour=centro), binwidth=0.1,show.legend = TRUE)
+
+#####combinando graficos
+#aqui usa cor preta de contorno
+k+ geom_histogram(aes(MUAC1,fill=centro),binwidth=0.1,alpha=0.3, colour="black")+
+  geom_density(aes(MUAC1,0.1*..count..,fill=centro),alpha=0.5, colour="black")
+
+#aqui o poligano de frequencia faz a cor sem especificar contorno preto
+k+geom_histogram(aes(MUAC1,fill=centro),binwidth = 0.1,alpha=0.3)+
+  geom_freqpoly(aes(MUAC1,colour=centro),binwidth=0.1)
+
+k+geom_dotplot(aes(MUAC1,fill=centro),binwidth = 0.1,alpha=0.3)+
+  geom_freqpoly(aes(MUAC1,colour=centro),binwidth=0.1)
+
+
+
+###########graficos de 2 dimensoes##################
+
+#usabdo banco antropometria
+#grafico de barra e coluna já formando tabela 
+
+AntNS<-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/AntroBF2.xlsx","Sheet1")
+
+#preparando dados da coluna e desvio padrão
+gr <- AntNS %>% group_by(centro) %>% summarise(media = mean(Peso_1v), desvio = sd (Peso_1v)) #2 colunas criadas
+
+##########roda e já forma uma tabela
+
+view(gr)
+
+#cria um dataframe com essa formula, assim toda a vez a formula está pronta e não precisa repetir
+
+gr <- ggplot(gr)
+
+
+#grafico de coluna, primeiro argumento sempre aes que é estetica e eixos
+gr+geom_col(aes(x=Peso_1v, y=Altura))
+
+#existem 4 tipos de graf de linha: "dashed" "longdash"  "solid" "dotted"
+#linerange precisa de 1 eixo x e 2 eixos y com min e max.
+#linetype é o tipo de linha
+
+gr+geom_linerange(aes(x=MUAC_1, ymin=media-desvio,ymax=media+desvio), linetype="dashed")
+gr+geom_errorbar(aes(x=centro, ymin=media-desvio,ymax=media+desvio), linetype="longdash")
+
+#igual de cima mas é horizontal e inverte os comandos de y e x
+
+gr+geom_errorbarh(aes(y=MUAC_1,x=media,xmin=media-desvio,xmax=media+desvio))
+
+#Abaixo definindo cores por especies traço plotado
+
+gr+geom_pointrange(aes(x=centro, y=media,ymin=media-desvio,ymax=media+desvio, colour=centro), size=1)
+
+#combinando gráficos de coluna com barra de erro.
+#fill é preenchimento
+
+gr+geom_col(aes(x=centro, y=media, fill=centro))+geom_errorbar(aes(x=centro, ymin=media-desvio, ymax=media+desvio),linetype="longdash")
+
+
+#grafico de coluna, primeiro argumento sempre aes que é estetica e eixos
+gr+geom_col(aes(x=Species, y=media))
+
+########################trabalhando os dados do Iris cru PAREI AQUI
+#criar dataframe para usar o banco iris
+
+###boxplot e grafico de violino banco geral SAMBA
+##cria objeto g
+
+b <- ggplot(AntNS)
+
+#cria eixo x= centro  e y= pesos
+
+b+geom_boxplot(aes(centro,MUAC1))
+b+geom_boxplot(aes(centro,BMI1))
+
+#tipo de centro x medidas
+b+geom_boxplot(aes(centro,MUAC1))+geom_jitter(aes(centro,BMI1))
+b+geom_boxplot(aes(centro,MUAC2))+geom_jitter(aes(centro,BMI))
+
+########VIOLINO PONTOS
+b+geom_violin(aes(centro,MUAC1))+geom_jitter(aes(centro,BMI1))
+b+geom_violin(aes(centro,MUAC2))+geom_jitter(aes(centro,BMI2))
+b+geom_violin(aes(centro,MUAC3))+geom_jitter(aes(centro,BMI3))
+
+#mudando as coordenadas cartesianas
+#limites eixos, funçao concatenar dados , Onde começa e onde termina cada eixo
+
+b+geom_boxplot(aes(centro,MUAC_1))+geom_jitter(aes(centro,MUAC_1))+
+  coord_cartesian(xlim = c(0,4), ylim=c(1,150))+theme_minimal()
+
+b+geom_violin(aes(centro,MUAC_1))+geom_jitter(aes(centro,MUAC_1))+
+  coord_cartesian(xlim = c(0,4), ylim=c(1,150))+theme_minimal()
+
+
+##coordenadas 
+#flip é girar
+
+b+geom_boxplot(aes(centro,MUAC1))+coord_flip()
+b+geom_violin(aes(centro,MUAC1))+geom_jitter(aes(centro,BMI1))+coord_flip()
+
+
+##grafico
+#cria data frame com as variaveis dieta NF
+
+pf <- data.frame(
+  grupo=c("NF","PF","UPF"),
+  valor=c(1199,718,594)
+)
+
+ggplot(pf)+geom_col(aes(x=1,y=valor,fill=grupo))
+
+#theta indica qual eixo compoe o eixo, no caso y. Polar é redondo - PIZZA
+ggplot(pf)+geom_col(aes(x=1,y=valor,fill=grupo))+coord_polar(theta = "y")
+
+#se mudar para eixo x no theta vira grafico de ALVO
+ggplot(pf)+geom_col(aes(x=1,y=valor,fill=grupo))+coord_polar(theta = "x")
+
+
+#facet_grid - divide um grafico em varios (linha~coluna) separado por til
+#(~coluna) ou (linha~). Igual quando deleta linha ou coluna só que com til e não virgula
+#dividido por idade
+
+
+b+geom_boxplot(aes(centro,MUAC1)+facet_grid(~BMI1))
+#por linha acrescenta .)
+b+geom_boxplot(aes(centro,MUAC1))+facet_grid(BMI1~)
+
+b+geom_boxplot(aes(centro,MUAC1))+facet_grid(BMI1~Etnia_cat2.)
+
+
+######Grafico de bolhas####################################################
+#usando thema bw salvo para visualização dos graficos
+
+theme_set(theme_bw())
+
+###extrair uma amostra de 250 do dataframe########################MUAC
+#subset, extrair uma amostra
+##posição dos pontos
+##cores = centro
+##uSANDO  banco BMI xs MUAC
+
+### Dataframe e colunas
+#substituir o nome das especies para NE e SE
+MB <- AntroBF
+MB$centro <- gsub ("UNICAMP", "SE", MB$centro)
+MB$centro <- gsub ("UNESP", "SE", MB$centro)
+MB$centro<- gsub ("UFRGS", "SE", MB$centro)
+
+MB$centro <- gsub ("MEAC", "NE", MB$centro)
+MB$centro <- gsub ("UFPE", "NE", MB$centro)
+
+
+###trabalhando graficos com Muac e BMI
+
+MB %>% ggplot(aes(x= MUAC1, y=BMI1, color=centro))+
+  geom_point(alpha=0.3)
+  
+#size tamanho das bolhas - scale estaca do tamanho quando é continuo arranjado pelo tamanho min e max
+
+MB %>% ggplot(aes(x= MUAC1, y=BMI1,size=Soma4D1,color=centro))+
+  geom_point(alpha=0.3)
+
+MB %>% ggplot(aes(x= MUAC_2, y=BMI2,size=Soma4D2,color=centro))+
+  geom_point(alpha=0.3)
+
+MB %>% ggplot(aes(x= MUAC_3, y=BMI3,size=Soma4D3,color=centro))+
+  geom_point(alpha=0.3)
+
+
+
+###medidas antropometricas - usando uma amostra aleatoria de 250 para visualizar
+## alpha percentua de transparencia
+
+MB %>%sample_n(250) %>% ggplot(aes(x=MUAC1, y=BMI1, size=Soma4D1,color=centro))+
+  geom_point(alpha=0.3)
+  
+##alterando formatos e trazendo mais variáveis
+
+ggplot(MB)+
+  geom_jitter(aes(x=MUAC1, y=BMI1,colour=centro, size=Soma4D1, shape=centro),
+              alpha=0.5)
+
+
+
+####testar desfecho
+
+#fica sem limite separando as barras
+qplot(x=Caso_PE,data=BDfinal,geom="histogram")
+
