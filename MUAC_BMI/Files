@@ -1,0 +1,865 @@
+###Autor Maria Miele
+###Script: faz a correlação e calculos entre BMI e MUAC
+#Baixar pacotes
+
+library(tidyverse)
+library(ggplot2)
+library(xlsx)
+library(gapminder)
+library(tibble)
+library(dplyr)
+library(magrittr)
+
+
+###buscar os dois bancos
+#Ler o banco total com 1166 N
+
+Antro2 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Antro2.xlsx", "Sheet1")
+Tris <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Tris.xlsx", "Sheet1")
+
+###mudar nome nomear colunas
+
+names(Tris)[5]<-("Sum")
+
+##contagem 
+
+length(Antro2$BMI_1)
+dim(Antro2)
+
+#separar por trimestre
+
+T1<- filter(Tris, Tri == 1)
+T2 <- filter(Tris, Tri == 2)
+T3 <- filter(Tris, Tri == 3)
+
+##filtar NA por sets
+
+T1 <- filter(T1, is.na(MUAC_1) == FALSE & is.na(BMI_1) == FALSE & is.na(Sum_1) == FALSE)
+T2 <- filter(T2, is.na(MUAC_2) == FALSE & is.na(BMI_2) == FALSE & is.na(Sum_2) == FALSE)
+T3 <- filter(T3, is.na(MUAC_3) == FALSE & is.na(BMI_3) == FALSE & is.na(Sum_3) == FALSE)
+
+##contagem sem NA
+
+length(T1$BMI_1) #1165
+length(T2$BMI_1) #1078
+length(T3$BMI_1) #772
+
+length(T1$MUAC_1) #1165
+length(T2$MUAC_1) #1078
+length(T3$MUAC_1) #772
+
+###rodar correlação
+cor(T1$BMI_1, T1$MUAC_1, method = "spearman")
+cor(T2$BMI_2, T2$MUAC_2, method = "spearman")
+cor(T3$BMI_3, T3$MUAC_3, method = "spearman")
+
+##teste estatistico
+cor.test(MB1$BMI_1, MB1$MUAC_1, method = "spearman")
+cor.test(MB2$BMI_2, MB2$MUAC_2,  method = "spearman")
+cor.test(MB3$BMI_3, MB3$MUAC_3,  method = "spearman")
+
+##checar os dados
+plot(T1)
+plot(T1$BMI_1, T1$MUAC_1)
+plot(T2$BMI_2, T2$MUAC_2)
+plot(T3$BMI_3, T3$MUAC_3)
+
+
+
+##Modificar a coluda de classificação para numerica no modelo 1,2,3,4 
+##sendo 1 obeso e 4 baixo peso
+
+T1$Class_1 <- gsub ("Obese", "1", T1$Class_1)
+T1$Class_1 <- gsub ("Overweight", "2", T1$Class_1)
+T1$Class_1 <- gsub ("Adequate", "3", T1$Class_1)
+T1$Class_1 <- gsub ("Underweight", "4", T1$Class_1)
+
+T2$Class_2 <- gsub ("Obese", "1", T2$Class_2)
+T2$Class_2 <- gsub ("Overweight", "2", T2$Class_2)
+T2$Class_2 <- gsub ("Adequate", "3", T2$Class_2)
+T2$Class_2 <- gsub ("Underweight", "4", T2$Class_2)
+
+T3$Class_3 <- gsub ("Obese", "1", T3$Class_3)
+T3$Class_3 <- gsub ("Overweight", "2", T3$Class_3)
+T3$Class_3 <- gsub ("Adequate", "3", T3$Class_3)
+T3$Class_3 <- gsub ("Underweight", "4", T3$Class_3)
+
+
+##selecionar variaveis não numericas retirando region e para não atrapalhar retirar ID
+
+t1 <- T1 [ ,-(1:2)]
+t2 <- T2 [ ,-(1:2)]
+t3 <- T3 [ ,-(1:2)]
+
+#Criar a matriz de correlação para preparar os graficos 
+set1 <- cor(t1)
+set2 <- cor(t2)
+set3 <- cor(t3)
+
+###Fazer 3 opções de graficos
+
+corrplot(set1)
+corrplot(set1, method = "color")
+corrplot(set1, method = "ellipse")
+corrplot(set1, method = "number")
+
+corrplot(set2)
+corrplot(set2, method = "color")
+corrplot(set2, method = "ellipse")
+corrplot(set2, method = "number")
+
+corrplot(set3)
+corrplot(set3, method = "color")
+corrplot(set3, method = "ellipse")
+corrplot(set3, method = "number")
+
+
+###mudando as posições
+
+corrplot(set1, type = "lower")
+corrplot(set1, type = "lower", method = "ellipse")
+corrplot(set1, type = "lower", method = "number")
+
+corrplot(set2, type = "lower", method = "number")
+
+corrplot(set3, type = "lower", method = "number")
+
+###grafico mostrando p valor
+##baixar pacote Hmisc
+
+install.packages("Hmisc")
+library(Hmisc)
+
+###grafico mostrando p valor
+##baixar pacote PerformanceAnalytics
+
+install.packages("PerformanceAnalytics")
+library(PerformanceAnalytics)
+
+chart.Correlation(set1, histogram = TRUE)
+
+
+#######ANOVA 
+
+#Transformo a coluna Class do DF em fator, ela deixa de se numérica para poder rodar o teste 
+
+M1 <- t1
+M1$Class_1 <- factor(M1$Class_1)
+
+M2 <- t2
+M2$Class_2 <- factor(M2$Class_2)
+
+M3 <- t3
+M3$Class_2 <- factor(M3$Class_3)
+
+
+##fazer histograma
+
+qplot(x=BMI_1, data = M1, bins = 10)
+
+qplot(x=BMI_1, fill = Class_1, data = M1, binwidth = 4)
+qplot(x=MUAC_1, fill = Class_1, data = M1, binwidth = 4)
+
+qplot(x=BMI_2, fill = Class_2, data = M2, binwidth = 4)
+qplot(x=MUAC_2, fill = Class_2, data = M2, binwidth = 4)
+
+qplot(x=BMI_3, fill = Class_3, data = M3, binwidth = 4)
+qplot(x=MUAC_3, fill = Class_3, data = M3, binwidth = 4)
+
+###Fazendo gráficos de ANOVA 2 way
+
+ggplot(t1)+geom_boxplot(aes(x=MUAC_1, y=BMI_1, fill=Class_1))+
+  geom_jitter(aes(x=MUAC_1, y=BMI_1, group =Class_1))+
+  theme_bw()
+
+ggplot(t2)+geom_boxplot(aes(x=MUAC_2, y=BMI_2, fill=Class_2))+
+  geom_jitter(aes(x=MUAC_2, y=BMI_2, group =Class_2))+
+  theme_bw()
+
+ggplot(t3)+geom_boxplot(aes(x=MUAC_3, y=BMI_3, fill=Class_3))+
+  geom_jitter(aes(x=MUAC_3, y=BMI_3, group =Class_3))+
+  theme_bw()
+
+##testar com base no canco geral Tris
+###mudar nomes das colunas
+names(Tris)[3]<-("BMI")
+names(Tris)[4]<-("MUAC")
+names(Tris)[5]<-("Skinfolds")
+
+
+ggplot(Tris)+geom_boxplot(aes(x=MUAC, y=BMI, fill=Class))+
+  geom_jitter(aes(x=MUAC, y=BMI, group =Class))+
+  theme_bw()
+
+ggplot(Tris)+geom_boxplot(aes(x=Tri, y=BMI, fill=Class))+
+  geom_jitter(aes(x=Tri, y=BMI, group =Class))+
+  theme_bw()
+
+
+###Outro tipo de ANOVA com uso do pacote estatístico "car" (formulas complexas de estatística)
+##Precisa instalar ele e depois carregar
+
+install.packages("car")
+library(car)
+
+##Rodas Anova com diferentes numeros de pcts nas variaveis
+#criar outro objeto 
+
+T4 <- aov(BMI~MUAC*Skinfolds, data=Tris)
+Anova(T4, type = "III")
+
+####trabalhar com os dados de especificidade e sensibilidade de MUAC e IMC
+### 1 - Importar as analises
+### 2 - excluir as colunas desnecessarias
+### 3 - Criar uma coluna nova com a média das Sen Espec
+### 4 - Filtrar o maior valor
+### 5 - definido o maior valor selecionar todos os valores maiores e menores categorizando em 1 ou 2
+### 6 - somar esse valores e fazer chi square
+
+### 1 - Importar as analises
+ROCob1 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCob1.xlsx", "ROCob1")
+ROCob2 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCob2.xlsx", "ROCob2")
+ROCob3 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCob3.xlsx", "ROCob3")
+
+ROCow1 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCow1.xlsx", "ROCow1")
+ROCow2 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCow2.xlsx", "ROCow2")
+ROCow3 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCow3.xlsx", "ROCow3")
+
+ROCuw1 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCuw1.xlsx", "ROCuw1")
+ROCuw2 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCuw2.xlsx", "ROCuw2")
+ROCuw3 <-read.xlsx("C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/ROCuw3.xlsx", "ROCuw3")
+
+
+### 2 - excluir as colunas desnecessarias
+
+ROCob1 <-ROCob1 [ ,-4]
+ROCob1 <-ROCob1 [ ,-(5:6)]
+
+ROCob2 <-ROCob2 [ ,-4]
+ROCob2 <-ROCob2 [ ,-(5:6)]
+
+ROCob3 <-ROCob3 [ ,-4]
+ROCob3 <-ROCob3 [ ,-(5:6)]
+
+ROCow1 <-ROCow1 [ ,-4]
+ROCow1 <-ROCow1 [ ,-(5:6)]
+
+ROCow2 <-ROCow2 [ ,-4]
+ROCow2 <-ROCow2 [ ,-(5:6)]
+
+ROCow3 <-ROCow3 [ ,-4]
+ROCow3 <-ROCow3 [ ,-(5:6)]
+
+
+ROCuw1 <-ROCuw1 [ ,-4]
+ROCuw1 <-ROCuw1 [ ,-(5:6)]
+
+ROCuw2 <-ROCuw2 [ ,-4]
+ROCuw2 <-ROCuw2 [ ,-(5:6)]
+
+ROCuw3 <-ROCuw3 [ ,-4]
+ROCuw3 <-ROCuw3 [ ,-(5:6)]
+
+### 3 - Criar uma coluna nova com a média das Sen/Espec - mutate
+
+Cob1 <- mutate(ROCob1, Media = (Sensitivity.+Specificity.)/2) 
+Cob2 <-mutate(ROCob2, Media = (Sensitivity.+Specificity.)/2) 
+Cob3 <-mutate(ROCob3, Media = (Sensitivity.+Specificity.)/2) 
+
+Cow1 <-mutate(ROCow1, Media = (Sensitivity.+Specificity.)/2) 
+Cow2 <-mutate(ROCow2, Media = (Sensitivity.+Specificity.)/2) 
+Cow3 <-mutate(ROCow3, Media = (Sensitivity.+Specificity.)/2) 
+
+Cuw1 <-mutate(ROCuw1, Media = (Sensitivity.+Specificity.)/2) 
+Cuw2 <-mutate(ROCuw2, Media = (Sensitivity.+Specificity.)/2) 
+Cuw3 <-mutate(ROCuw3, Media = (Sensitivity.+Specificity.)/2) 
+
+### 4 - Filtrar o maior valor
+#Decrecente
+
+Cob1m <- arrange(Cob1, desc(Media))
+Cob2m <- arrange(Cob2, desc(Media))
+Cob3m <- arrange(Cob3, desc(Media))
+
+Cow1m <- arrange(Cow1, desc(Media))
+Cow2m <- arrange(Cow2, desc(Media))
+Cow3m <- arrange(Cow3, desc(Media))
+
+Cuw1m <- arrange(Cuw1, desc(Media))
+Cuw2m <- arrange(Cuw2, desc(Media))
+Cuw3m <- arrange(Cuw3, desc(Media))
+
+#####CUT POINTS MUAC
+#Cob1m Sensitivity. Specificity.    Media
+#30.15       94.330      92.8400    93.58500
+
+# Cob2m Sensitivity. Specificity.    Media
+#  30.60      95.7200      95.0300 95.37500
+
+
+# Cob3m Sensitivity. Specificity.    Media
+#  30.25      90.5000      93.0900 91.79500
+
+# Cow1m Sensitivity. Specificity.    Media
+#   28.10      85.3200      76.2900 80.80500
+
+#Cow2m Sensitivity. Specificity.    Media
+# 28.70      63.6800      78.7300 71.20500
+
+
+# Cow3m Sensitivity. Specificity.    Media
+#   29.45      71.1000      86.1800 78.64000
+
+
+# Cuw1m Sensitivity. Specificity.    Media
+#   25.75      86.7600      72.2600 79.51000
+
+# Cuw2m Sensitivity. Specificity.    Media
+#   25.75      80.8800      80.1100 80.49500
+
+
+# Cuw3m  Sensitivity. Specificity.    Media
+#   25.75       76.530      81.4500 78.99000
+
+
+### 5 - definido o maior valor selecionar todos os valores maiores e menores categorizando em 1 ou 0
+#combinando com argumento if_else (se não for)
+##renomear coluna NA. para MUAC
+
+names(Cob1)[2]<-("MUAC")
+names(Cob2)[2]<-("MUAC")
+names(Cob3)[2]<-("MUAC")
+
+names(Cow1)[2]<-("MUAC")
+names(Cow2)[2]<-("MUAC")
+names(Cow3)[2]<-("MUAC")
+
+names(Cuw1)[2]<-("MUAC")
+names(Cuw2)[2]<-("MUAC")
+names(Cuw3)[2]<-("MUAC")
+
+###################BANCO TRIS COMPLETO
+
+### Separar set point da visita - filtrando
+### categorizar por faixas do MUAC 
+
+
+Tris$Class <- gsub ("Obese", "1", Tris$Class)
+Tris$Class <- gsub ("Overweight", "2", Tris$Class)
+Tris$Class <- gsub ("Adequate", "3", Tris$Class)
+Tris$Class <- gsub ("Underweight", "4", Tris$Class)
+
+
+#filtrar por visita banco Tris
+##1v
+
+Tri_1mb <- filter(Tris, Tri == 1)
+Tri_2mb <- filter(Tris, Tri == 2)
+Tri_3mb <- filter(Tris, Tri == 3)
+
+###retirar dobras cutaneas
+
+Tri_1mb <- Tri_1mb [ ,-5]
+Tri_1mb <- Tri_1mb [ ,-6]
+Tri_2mb <- Tri_2mb [ ,-5]
+Tri_3mb <- Tri_3mb [ ,-5]
+Tri_3mb <- Tri_3mb [ ,-6]
+
+
+### categorizar por faixas do MUAC em 1, 2, 3
+Tri_1ob_cat<- mutate(Tri_1mb, class_m = if_else(MUAC_1>=30.15, "1", "0"))
+Tri_2ob_cat<- mutate(Tri_2mb, class_m = if_else(MUAC_1>=30.60, "1", "0"))
+Tri_3ob_cat<- mutate(Tri_3mb, class_m = if_else(MUAC_1>=30.25, "1", "0"))
+
+Tri_1ow_cat<- mutate(Tri_1mb, class_m = if_else(MUAC_1<30.15 & MUAC_1 >=28.10, "2", "0"))
+Tri_2ow_cat<- mutate(Tri_2mb, class_m = if_else(MUAC_1<30.60 & MUAC_1 >=28.70, "2", "0"))
+Tri_3ow_cat<- mutate(Tri_3mb, class_m = if_else(MUAC_1<30.25 & MUAC_1 >=29.45, "2", "0"))
+
+Tri_1ad_cat<- mutate(Tri_1mb, class_m = if_else(MUAC_1<28.10 & MUAC_1 >25.75, "3", "0"))
+Tri_2ad_cat<- mutate(Tri_2mb, class_m = if_else(MUAC_1<28.70 & MUAC_1 >25.75, "3", "0"))
+Tri_3ad_cat<- mutate(Tri_3mb, class_m = if_else(MUAC_1<29.45 & MUAC_1 >25.75, "3", "0"))
+
+Tri_1uw_cat<- mutate(Tri_1mb, class_m = if_else(MUAC_1<=25.75, "4", "0"))
+Tri_2uw_cat<- mutate(Tri_2mb, class_m = if_else(MUAC_1<=25.75, "4", "0"))
+Tri_3uw_cat<- mutate(Tri_3mb, class_m = if_else(MUAC_1<=25.75, "4", "0"))
+
+
+#exportar para o dropbox
+
+write.xlsx(Tri_1ob_cat,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Cat_tri/Tri_1ob_cat.xlsx")
+write.xlsx(Tri_1ow_cat,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Cat_tri/Tri_1ow_cat.xlsx")
+write.xlsx(Tri_1ad_cat,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Cat_tri/Tri_1ad_cat.xlsx")
+write.xlsx(Tri_1uw_cat,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Cat_tri/Tri_1uw_cat.xlsx")
+
+
+####cruzar MUAC_cat com IMC_cat para cada categoria
+
+#1v
+MB_ob1 <- filter(Tri_1ob_cat, Class == 1 & class_m == 1)
+MB_ow1 <- filter(Tri_1ow_cat, Class == 2 & class_m == 2)
+MB_ad1 <- filter(Tri_1ad_cat, Class == 3 & class_m == 3)
+MB_uw1 <- filter(Tri_1uw_cat, Class == 4 & class_m == 4)
+#2v
+MB_ob2 <- filter(Tri_2ob_cat, Class == 1 & class_m == 1)
+MB_ow2 <- filter(Tri_2ow_cat, Class == 2 & class_m == 2)
+MB_ad2 <- filter(Tri_2ad_cat, Class == 3 & class_m == 3)
+MB_uw2 <- filter(Tri_2uw_cat, Class == 4 & class_m == 4)
+#3v
+MB_ob3 <- filter(Tri_3ob_cat, Class == 1 & class_m == 1)
+MB_ow3 <- filter(Tri_3ow_cat, Class == 2 & class_m == 2)
+MB_ad3 <- filter(Tri_3ad_cat, Class == 3 & class_m == 3)
+MB_uw3 <- filter(Tri_3uw_cat, Class == 4 & class_m == 4)
+
+
+
+### colocar uma linha abaixo da outra unindo as categorias de acordo com a visita
+#bind_cols(a,b) = coloca um DF abaixo do outro 
+
+MBcat_1v<-bind_rows(MB_ob1,MB_ow1,MB_ad1,MB_uw1) 
+MBcat_2v<-bind_rows(MB_ob2,MB_ow2,MB_ad2,MB_uw2) 
+MBcat_3v<-bind_rows(MB_ob3,MB_ow3,MB_ad3,MB_uw3) 
+
+
+#exportar para o dropbox
+
+write.xlsx(MBcat_1v,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/MUAC1v.xlsx")
+write.xlsx(MBcat_2v,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/MUAC2v.xlsx")
+write.xlsx(MBcat_3v,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/ROC/MUAC3v.xlsx")
+
+
+###selecionar o N para cada categoria em cada setpoint
+#########obeso 1-visita 
+
+#TABELA 4X4 (quantos MUAC obesos eram BMI de obesidade)
+# Tri_1ob_cat = traz todo o N e as categorias
+
+Obese_M1 <-filter(Tri_1ob_cat, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(Obese_M1) #obesas MUAC = 366
+
+Obese_1bmi <-filter(Tri_1ob_cat, Class == 1 & is.na(BMI_1) == FALSE)  
+dim(Obese_1bmi) #obesas BMI = 199
+
+Vdd_ob1 <- filter(Obese_1bmi, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ob1)#obesa BMI e obesa MUAC = 183
+
+B_Nob1 <- filter(Tri_1ob_cat, Class >1 & is.na(BMI_1) == FALSE)
+dim(B_Nob1) #não obesa em BMI = 966
+
+false_pos1 <- filter(B_Nob1, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(false_pos1) #Não Obesa BMI e obesa MUAC = 183
+
+M_Nob1 <- filter(Tri_1ob_cat, class_m == 0 & is.na(MUAC_1) == FALSE)
+dim(M_Nob1) #não obesa em MUAC = 772
+
+Vdd_Nob1 <-filter(B_Nob1,class_m == 0) 
+dim(Vdd_Nob1) # não obesa nas 2 cats = 761
+
+Falso_neg1 <- filter(Obese_1bmi, class_m == 0)
+dim(Falso_neg1) #obesa BMI e não obesa MUAC = 11
+
+
+######### TABELA 4X4  
+
+##2-visita obesos
+
+Obese_M2 <-filter(Tri_2ob_cat, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(Obese_M2) #obesas MUAC = 329
+
+Obese_2bmi <-filter(Tri_2ob_cat, Class == 1 & is.na(BMI_1) == FALSE)  
+dim(Obese_2bmi) #obesas BMI = 187
+
+Vdd_ob2 <- filter(Obese_2bmi, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ob2)#obesa BMI e obesa MUAC = 179
+
+B_Nob2 <- filter(Tri_2ob_cat, Class >1 & is.na(BMI_1) == FALSE)
+dim(B_Nob2) #não obesa em BMI = 891
+
+false_pos2 <- filter(B_Nob2, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(false_pos2) #Não Obesa BMI e obesa MUAC = 150
+
+M_Nob2 <- filter(Tri_2ob_cat, class_m == 0 & is.na(MUAC_1) == FALSE)
+dim(M_Nob2) #não obesa em MUAC = 747
+
+Vdd_Nob2 <-filter(B_Nob2,class_m == 0) 
+dim(Vdd_Nob2) # não obesa nas 2 cats = 739
+
+Falso_neg2 <- filter(Obese_2bmi, class_m == 0)
+dim(Falso_neg2) #obesa BMI e não obesa MUAC = 8
+
+
+######### TABELA 4X4  
+
+##3-visita obesos
+
+Obese_M3 <-filter(Tri_3ob_cat, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(Obese_M3) #obesas MUAC = 292
+
+Obese_3bmi <-filter(Tri_3ob_cat, Class == 1 & is.na(BMI_1) == FALSE)  
+dim(Obese_3bmi) #obesas BMI = 180
+
+Vdd_ob3 <- filter(Obese_3bmi, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ob3)#obesa BMI e obesa MUAC = 162
+
+B_Nob3 <- filter(Tri_3ob_cat, Class >1 & is.na(BMI_1) == FALSE)
+dim(B_Nob3) #não obesa em BMI = 592
+
+false_pos3 <- filter(B_Nob3, class_m == 1 & is.na(MUAC_1) == FALSE)
+dim(false_pos3) #Não Obesa BMI e obesa MUAC = 130
+
+M_Nob3 <- filter(Tri_3ob_cat, class_m == 0 & is.na(MUAC_1) == FALSE)
+dim(M_Nob3) #não obesa em MUAC = 478
+
+Vdd_Nob3 <-filter(B_Nob3,class_m == 0) 
+dim(Vdd_Nob3) # não obesa nas 2 cats = 461
+
+Falso_neg3 <- filter(Obese_3bmi, class_m == 0)
+dim(Falso_neg3) #obesa BMI e não obesa MUAC = 6
+
+
+
+
+##################overweight
+ ##1 visita
+
+
+Ow_M1 <-filter(Tri_1ow_cat, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(Ow_M1) #ow MUAC = 180
+
+Ow_1bmi <-filter(Tri_1ow_cat, Class == 2 & is.na(BMI_1) == FALSE)  
+dim(Ow_1bmi) #ow BMI = 299
+
+Vdd_ow1 <- filter(Ow_1bmi, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ow1)#ow BMI e ow MUAC = 100
+
+B_Now1 <- filter(Tri_1ow_cat, Class >=3 | Class == 1)
+dim(B_Now1) #não overweight em BMI = 866
+
+false_poW1 <- filter(B_Now1, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(false_poW1) #Não Ow BMI e ow MUAC = 80
+
+M_Now1 <-filter(Tri_1ow_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Now1) #não ow em MUAC = 958
+
+Vdd_NoW1 <-filter(B_Now1,class_m == 0) 
+dim(MB_Now1) #Não ow nas 2 cats = 765
+
+Falow_neg1 <- filter(Ow_1bmi, class_m == 0)
+dim(Falow_neg1) #ow BMI e não ow MUAC = 193
+
+
+#2v 
+
+
+Ow_M2 <-filter(Tri_2ow_cat, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(Ow_M2) #ow MUAC = 184
+
+Ow_2bmi <-filter(Tri_2ow_cat, Class == 2 & is.na(BMI_1) == FALSE)  
+dim(Ow_2bmi) #ow BMI = 392
+
+Vdd_ow2 <- filter(Ow_2bmi, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ow2)#ow BMI e ow MUAC = 119
+
+B_Now2 <- filter(Tri_2ow_cat, Class >=3 | Class == 1)
+dim(B_Now2) #não overweight em BMI = 686
+
+false_poW2 <- filter(B_Now2, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(false_poW2) #Não Ow BMI e ow MUAC = 65
+
+M_Now2 <-filter(Tri_2ow_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Now2) #não ow em MUAC = 892
+
+Vdd_NoW2 <-filter(B_Now2,class_m == 0) 
+dim(MB_Now2) #Não ow nas 2 cats = 620
+
+Falow_neg2 <- filter(Ow_2bmi, class_m == 0)
+dim(Falow_neg2) #ow BMI e não ow MUAC = 272
+
+
+#3v 
+
+Ow_M3 <-filter(Tri_3ow_cat, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(Ow_M3) #ow MUAC = 71
+
+Ow_3bmi <-filter(Tri_3ow_cat, Class == 2 & is.na(BMI_1) == FALSE)  
+dim(Ow_3bmi) #ow BMI = 219
+
+Vdd_ow3 <- filter(Ow_3bmi, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ow3)#ow BMI e ow MUAC = 45
+
+B_Now3 <- filter(Tri_3ow_cat, Class >=3 | Class == 1)
+dim(B_Now3) #não overweight em BMI = 553
+
+false_poW3 <- filter(B_Now3, class_m == 2 & is.na(MUAC_1) == FALSE)
+dim(false_poW3) #Não Ow BMI é ow MUAC = 26
+
+M_Now3 <-filter(Tri_3ow_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Now3) #não ow em MUAC = 699
+
+Vdd_NoW3 <-filter(B_Now3,class_m == 0) 
+dim(MB_Now3) #Não ow nas 2 cats = 526
+
+Falow_neg3 <- filter(Ow_3bmi, class_m == 0)
+dim(Falow_neg3) #ow BMI e não ow MUAC = 173
+
+########Underweight
+
+#1 visita
+
+Uw_M1 <-filter(Tri_1uw_cat, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(Uw_M1) #uw MUAC = 311
+
+Uw_1bmi <-filter(Tri_1uw_cat, Class == 4 & is.na(BMI_1) == FALSE)  
+dim(Uw_1bmi) #uw BMI = 206
+
+Vdd_uw1 <- filter(Uw_1bmi, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(Vdd_uw1)#uw BMI e uw MUAC = 177
+
+B_Nuw1 <- filter(Tri_1uw_cat, Class <=3 & is.na(BMI_1) == FALSE) 
+dim(B_Nuw1) #não ow em BMI = 959
+
+false_puW1 <- filter(B_Nuw1, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(false_puW1) #Não uw BMI é uw MUAC = 134
+
+M_Nuw1 <-filter(Tri_1uw_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Nuw1) #não uw em MUAC = 827
+
+Vdd_NuW1 <-filter(B_Nuw1,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(Vdd_NuW1) #Não uw nas 2 cats = 800
+
+Faluw_neg1 <- filter(Uw_1bmi, class_m == 0)
+dim(Faluw_neg1) #É uw BMI e não é uw MUAC = 27
+
+#2 visita
+
+Uw_M2 <-filter(Tri_2uw_cat, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(Uw_M2) #uw MUAC = 207
+
+Uw_2bmi <-filter(Tri_2uw_cat, Class == 4 & is.na(BMI_1) == FALSE)  
+dim(Uw_2bmi) #uw BMI = 136
+
+Vdd_uw2 <- filter(Uw_2bmi, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(Vdd_uw2)#uw BMI e uw MUAC = 110
+
+B_Nuw2 <- filter(Tri_2uw_cat, Class <=3 & is.na(BMI_1) == FALSE) 
+dim(B_Nuw2) #não ow em BMI = 942
+
+false_puW2 <- filter(B_Nuw2, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(false_puW2) #Não uw BMI é uw MUAC = 97
+
+M_Nuw2 <-filter(Tri_2uw_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Nuw2) #não uw em MUAC = 869
+
+Vdd_NuW2 <-filter(B_Nuw2,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(Vdd_NuW2) #Não uw nas 2 cats = 843
+
+Faluw_neg2 <- filter(Uw_2bmi, class_m == 0)
+dim(Faluw_neg2) #É uw BMI e não é uw MUAC = 26
+
+#3 visita
+
+Uw_M3 <-filter(Tri_3uw_cat, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(Uw_M3) #uw MUAC = 130
+
+Uw_3bmi <-filter(Tri_3uw_cat, Class == 4 & is.na(BMI_1) == FALSE)  
+dim(Uw_3bmi) #uw BMI = 98
+
+Vdd_uw3 <- filter(Uw_3bmi, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(Vdd_uw3)#uw BMI e uw MUAC = 75
+
+B_Nuw3 <- filter(Tri_3uw_cat, Class <=3 & is.na(BMI_1) == FALSE) 
+dim(B_Nuw3) #não ow em BMI = 674
+
+false_puW3 <- filter(B_Nuw3, class_m == 4 & is.na(MUAC_1) == FALSE)
+dim(false_puW3) #Não uw BMI é uw MUAC = 55
+
+M_Nuw3 <-filter(Tri_3uw_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Nuw3) #não uw em MUAC = 640
+
+Vdd_NuW3 <-filter(B_Nuw3,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(Vdd_NuW3) #Não uw nas 2 cats = 617
+
+Faluw_neg3 <- filter(Uw_3bmi, class_m == 0)
+dim(Faluw_neg3) #É uw BMI e não é uw MUAC = 23
+
+
+
+########Adequate
+
+#1 visita
+
+Ad_M1 <-filter(Tri_1ad_cat, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(Ad_M1) #ad MUAC = 281
+
+Ad_1bmi <-filter(Tri_1ad_cat, Class == 3 & is.na(BMI_1) == FALSE)  
+dim(Ad_1bmi) #ad BMI = 461
+
+Vdd_ad1 <- filter(Ad_1bmi, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ad1)#ad BMI e ad MUAC = 217
+
+B_Nad1 <- filter(Tri_1ad_cat, Class <=2 | Class == 4 & is.na(BMI_1) == FALSE) 
+dim(B_Nad1) #não ad em BMI = 704
+
+false_pad1 <- filter(B_Nad1, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(false_pad1) #Não ad BMI é ad MUAC = 64
+
+M_Nad1 <-filter(Tri_1ad_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Nad1) #não ad em MUAC = 857
+
+Vdd_Nad1 <-filter(B_Nad1,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(Vdd_Nad1) #Não uw nas 2 cats = 627
+
+Falad_neg1 <- filter(Ad_1bmi, class_m == 0)
+dim(Falad_neg1) #É ad BMI e não é ad MUAC = 230
+
+
+#2 visita
+
+Ad_M2 <-filter(Tri_2ad_cat, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(Ad_M2) #ad MUAC = 356
+
+Ad_2bmi <-filter(Tri_2ad_cat, Class == 3 & is.na(BMI_1) == FALSE)  
+dim(Ad_2bmi) #ad BMI = 363
+
+Vdd_ad2 <- filter(Ad_2bmi, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ad2)#ad BMI e ad MUAC = 213
+
+B_Nad2 <- filter(Tri_2ad_cat, Class <=2 | Class == 4 & is.na(BMI_1) == FALSE) 
+dim(B_Nad2) #não ad em BMI = 715
+
+false_pad2 <- filter(B_Nad2, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(false_pad2) #Não ad BMI é ad MUAC = 143
+
+M_Nad2 <-filter(Tri_2ad_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Nad2) #não ad em MUAC = 720
+
+Vdd_Nad2 <-filter(B_Nad2,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(Vdd_Nad2) #Não ad nas 2 cats = 571
+
+Falad_neg2 <- filter(Ad_2bmi, class_m == 0)
+dim(Falad_neg2) #É ad BMI e não é ad MUAC = 149
+
+#3 visita
+
+Ad_M3 <-filter(Tri_3ad_cat, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(Ad_M3) #ad MUAC = 277
+
+Ad_3bmi <-filter(Tri_3ad_cat, Class == 3 & is.na(BMI_1) == FALSE)  
+dim(Ad_3bmi) #ad BMI = 275
+
+Vdd_ad3 <- filter(Ad_3bmi, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(Vdd_ad3)#ad BMI e ad MUAC = 186
+
+B_Nad3 <- filter(Tri_3ad_cat, Class <=2 | Class == 4 & is.na(BMI_1) == FALSE) 
+dim(B_Nad3) #não ad em BMI = 497
+
+false_pad3 <- filter(B_Nad3, class_m == 3 & is.na(MUAC_1) == FALSE)
+dim(false_pad3) #Não ad BMI é ad MUAC = 91
+
+M_Nad3 <-filter(Tri_3ad_cat,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(M_Nad3) #não ad em MUAC = 493
+
+Vdd_Nad3 <-filter(B_Nad3,class_m == 0 & is.na(MUAC_1) == FALSE) 
+dim(Vdd_Nad3) #Não ad nas 2 cats = 404
+
+Falad_neg3 <- filter(Ad_3bmi, class_m == 0)
+dim(Falad_neg3) #É ad BMI e não é ad MUAC = 89
+
+###mesclar com a semana gestacional de cada tri
+
+Vdd_ob1w<-left_join(Vdd_ob1,Antro2,by="ID")
+Vdd_ob2w<-left_join(Vdd_ob2,Antro2,by="ID")
+Vdd_ob3w<-left_join(Vdd_ob3,Antro2,by="ID")
+
+Vdd_ow1w<-left_join(Vdd_ow1,Antro2,by="ID")
+Vdd_ow2w<-left_join(Vdd_ow2,Antro2,by="ID")
+Vdd_ow3w<-left_join(Vdd_ow3,Antro2,by="ID")
+
+Vdd_ad1w<-left_join(Vdd_ad1,Antro2,by="ID")
+Vdd_ad2w<-left_join(Vdd_ad2,Antro2,by="ID")
+Vdd_ad3w<-left_join(Vdd_ad3,Antro2,by="ID")
+
+Vdd_uw1w<-left_join(Vdd_uw1,Antro2,by="ID")
+Vdd_uw2w<-left_join(Vdd_uw2,Antro2,by="ID")
+Vdd_uw3w<-left_join(Vdd_uw3,Antro2,by="ID")
+
+##retirar colunas indesejaveis
+#Ob
+Vdd_ob1w<-Vdd_ob1w [ ,-(7:39)]
+Vdd_ob1w<-Vdd_ob1w [ ,-(8:10)]
+Vdd_ob1w<-Vdd_ob1w [ ,-5]
+
+Vdd_ob2w<-Vdd_ob2w [ ,-(7:40)]
+Vdd_ob2w<-Vdd_ob2w [ ,-(8:9)]
+Vdd_ob2w<-Vdd_ob2w [ ,-5]
+
+Vdd_ob3w<-Vdd_ob3w [ ,-(5:41)]
+Vdd_ob3w<-Vdd_ob3w [ ,-6]
+
+#OW
+Vdd_ow1w<-Vdd_ow1w [ ,-(7:39)]
+Vdd_ow1w<-Vdd_ow1w [ ,-(8:10)]
+Vdd_ow1w<-Vdd_ow1w [ ,-5]
+
+Vdd_ow2w<-Vdd_ow2w [ ,-(7:40)]
+Vdd_ow2w<-Vdd_ow2w [ ,-(8:9)]
+Vdd_ow2w<-Vdd_ow2w [ ,-5]
+
+Vdd_ow3w<-Vdd_ow3w [ ,-(5:41)]
+Vdd_ow3w<-Vdd_ow3w [ ,-6]
+
+#Ad
+Vdd_ad1w<-Vdd_ad1w [ ,-(7:39)]
+Vdd_ad1w<-Vdd_ad1w [ ,-(8:10)]
+Vdd_ad1w<-Vdd_ad1w [ ,-5]
+
+Vdd_ad2w<-Vdd_ad2w [ ,-(8:40)]
+Vdd_ad2w<-Vdd_ad2w [ ,-(10:11)]
+Vdd_ad2w<-Vdd_ad2w [ ,-8]
+Vdd_ad2w<-Vdd_ad2w [ ,-(5:6)]
+
+Vdd_ad3w<-Vdd_ad3w [ ,-(5:41)]
+Vdd_ad3w<-Vdd_ad3w [ ,-6]
+
+#uW
+Vdd_uw1w<-Vdd_uw1w [ ,-(7:40)]
+Vdd_uw1w<-Vdd_uw1w [ ,-(8:10)]
+Vdd_uw1w<-Vdd_uw1w [ ,-5]
+
+Vdd_uw2w<-Vdd_uw2w [ ,-(8:41)]
+Vdd_uw2w<-Vdd_uw2w [ ,-(9:10)]
+Vdd_uw2w<-Vdd_uw2w [ ,-(5:6)]
+
+Vdd_uw3w<-Vdd_uw3w [ ,-(7:41)]
+Vdd_uw3w<-Vdd_uw3w [ ,-8]
+Vdd_uw3w<-Vdd_uw3w [ ,-5]
+
+### colocar uma linha abaixo da outra unindo as categorias de acordo com a visita
+#bind_cols(a,b) = coloca um DF abaixo do outro 
+
+Vdd_1v<-bind_rows(Vdd_ob1w,Vdd_ow1w,Vdd_ad1w,Vdd_uw1w) 
+Vdd_2v<-bind_rows(Vdd_ob2w,Vdd_ow2w,Vdd_ad2w,Vdd_uw2w) 
+Vdd_3v<-bind_rows(Vdd_ob3w,Vdd_ow3w,Vdd_ad3w,Vdd_uw3w) 
+
+#exportar os vvds
+
+write.xlsx(Vdd_1v,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_1v.xlsx")
+write.xlsx(Vdd_2v,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_2v.xlsx")
+write.xlsx(Vdd_3v,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_3v.xlsx")
+
+
+write.xlsx(Vdd_ob1w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ob1.xlsx")
+write.xlsx(Vdd_ob2w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ob2.xlsx")
+write.xlsx(Vdd_ob3w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ob3.xlsx")
+
+write.xlsx(Vdd_ow1w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ow1.xlsx")
+write.xlsx(Vdd_ow2w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ow2.xlsx")
+write.xlsx(Vdd_ow3w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ow3.xlsx")
+
+write.xlsx(Vdd_ad1w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ad1.xlsx")
+write.xlsx(Vdd_ad2w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ad2.xlsx")
+write.xlsx(Vdd_ad3w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_ad3.xlsx")
+
+write.xlsx(Vdd_uw1w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_uw1.xlsx")
+write.xlsx(Vdd_uw2w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_uw2.xlsx")
+write.xlsx(Vdd_uw3w,"C:/Users/miele/Dropbox/DOUTORADO/BANCO DE DADOS/Dados/Antropometria/Curva_vdds/Vdd_uw3.xlsx")
+
